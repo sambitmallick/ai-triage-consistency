@@ -92,4 +92,16 @@ for (const [what, schema, field, pred] of CHANGES) {
 }
 for (const u of UNREACHABLE) console.log(`  n/a      ${u}`);
 console.log(`COVERAGE: ${covered} of ${CHANGES.length} reachable behaviour changes`);
+
+// --json <file>: freeze the evidence (ep26 triages the SAME groups every run)
+const ji = process.argv.indexOf("--json");
+if (ji > 0) {
+  const enc = (v) => JSON.parse(JSON.stringify(v, rep));
+  const out = Object.entries(groups).sort((p, q) => q[1].length - p[1].length).map(([heading, ds]) => ({
+    heading, count: ds.length,
+    examples: ds.slice(0, 10).map((d) => ({ input: enc(d.x), zod3: enc(d.was), now: enc(d.now) })),
+  }));
+  require("fs").writeFileSync(process.argv[ji + 1], JSON.stringify({ seed: SEED, perSchema: N, total, groups: out }, null, 1));
+  console.log(`evidence written: ${process.argv[ji + 1]} (${out.length} groups)`);
+}
 process.exit(total ? 1 : 0);

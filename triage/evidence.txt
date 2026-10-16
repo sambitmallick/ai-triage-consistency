@@ -1,0 +1,71 @@
+1795 different answers out of 10000 generated inputs (seed 20261016). zod3 = the oracle (before the upgrade), now = the merged build.
+
+[508] config: hosts was REJECTED, now ACCEPTED
+   hosts = ["5ac3::de2a%wlan0","26.42.49.219"]  ->  zod3 rejects (hosts.0)  |  now accepts
+   hosts = ["2459::52d2%lo0"]  ->  zod3 rejects (hosts.0)  |  now accepts
+   hosts = ["6e87::9fbf%en0"]  ->  zod3 rejects (hosts.0)  |  now accepts
+   hosts = ["7e60::16eb%25"]  ->  zod3 rejects (hosts.0)  |  now accepts
+   hosts = ["96.87.107.24","a644::8654%eth0"]  ->  zod3 rejects (hosts.1)  |  now accepts
+   hosts = ["124.7.8.12","589b:43d7:4abd:4f64:bada:94d1:f9b0:87c0%1","182.138.0.167"]  ->  zod3 rejects (hosts.1)  |  now accepts
+   hosts = ["26.147.147.69","144b:8583:c950:87b1:d479:1cbb:789e:5de0%wlan0"]  ->  zod3 rejects (hosts.1)  |  now accepts
+   hosts = ["2001:db8::ff00:42:8329%wlan0"]  ->  zod3 rejects (hosts.0)  |  now accepts
+
+[463] config: timeoutMs was ACCEPTED, now REJECTED
+   timeoutMs = Infinity  ->  zod3 accepts  |  now rejects (timeoutMs)
+   timeoutMs = Infinity  ->  zod3 accepts  |  now rejects (timeoutMs)
+   timeoutMs = Infinity  ->  zod3 accepts  |  now rejects (timeoutMs)
+   timeoutMs = Infinity  ->  zod3 accepts  |  now rejects (timeoutMs)
+   timeoutMs = Infinity  ->  zod3 accepts  |  now rejects (timeoutMs)
+   timeoutMs = Infinity  ->  zod3 accepts  |  now rejects (timeoutMs)
+   timeoutMs = Infinity  ->  zod3 accepts  |  now rejects (timeoutMs)
+   timeoutMs = Infinity  ->  zod3 accepts  |  now rejects (timeoutMs)
+
+[357] signup: ip was REJECTED, now ACCEPTED
+   ip = "305b:7432:e22d:4c35:1962:71c6:ed4d:69ae%1"  ->  zod3 rejects (ip)  |  now accepts
+   ip = "3d62::9037%1"  ->  zod3 rejects (ip)  |  now accepts
+   ip = "2001:db8::ff00:42:8329%25"  ->  zod3 rejects (ip)  |  now accepts
+   ip = "b87e:5698:6e07:9d7a:f797:88d4:4a6a:3b0f%en0"  ->  zod3 rejects (ip)  |  now accepts
+   ip = "::%1"  ->  zod3 rejects (ip)  |  now accepts
+   ip = "7c7d:e625:37c0:79c6:6163:e674:4a35:f1d4%en0"  ->  zod3 rejects (ip)  |  now accepts
+   ip = "e575::ec0a%en0"  ->  zod3 rejects (ip)  |  now accepts
+   ip = "dafa::c206%eth0"  ->  zod3 rejects (ip)  |  now accepts
+
+[324] signup: age was ACCEPTED, now REJECTED
+   age = 1e+21  ->  zod3 accepts  |  now rejects (age)
+   age = 1e+21  ->  zod3 accepts  |  now rejects (age)
+   age = 9007199254740994  ->  zod3 accepts  |  now rejects (age)
+   age = 1e+30  ->  zod3 accepts  |  now rejects (age)
+   age = 1152921504606847000  ->  zod3 accepts  |  now rejects (age)
+   age = 1.7976931348623157e+308  ->  zod3 accepts  |  now rejects (age)
+   age = 1e+21  ->  zod3 accepts  |  now rejects (age)
+   age = 1.7976931348623145e+308  ->  zod3 accepts  |  now rejects (age)
+
+[88] signup: rejected by both, but different fields reported
+   zod3 rejects (age, email, id, ip, plan, prefs, website)  |  now rejects (age, email, id, plan, prefs, website)
+   zod3 rejects (email, ip, plan)  |  now rejects (email, plan)
+   zod3 rejects (email, name, plan)  |  now rejects (age, email, name, plan)
+   zod3 rejects (email, id, ip, plan)  |  now rejects (age, email, id, ip, plan)
+   zod3 rejects (email, flags, plan, website)  |  now rejects (age, email, flags, plan, website)
+   zod3 rejects (email, id, ip, name, plan)  |  now rejects (email, id, name, plan)
+   zod3 rejects (flags.bjol, flags.vhpyy, id, ip, plan, prefs.retries, prefs.theme, website)  |  now rejects (flags.bjol, flags.vhpyy, id, plan, prefs.retries, prefs.theme, website)
+   zod3 rejects (ip, name, plan, website)  |  now rejects (age, ip, name, plan, website)
+
+[47] config: rejected by both, but different fields reported
+   zod3 rejects (hosts.1, port)  |  now rejects (port)
+   zod3 rejects (hosts.0, hosts.1, timeoutMs)  |  now rejects (hosts.0, timeoutMs)
+   zod3 rejects (hosts.0, hosts.1)  |  now rejects (hosts.0, hosts.1, timeoutMs)
+   zod3 rejects (hosts)  |  now rejects (hosts, timeoutMs)
+   zod3 rejects (hosts)  |  now rejects (hosts, timeoutMs)
+   zod3 rejects (hosts, port)  |  now rejects (hosts, port, timeoutMs)
+   zod3 rejects (hosts)  |  now rejects (hosts, timeoutMs)
+   zod3 rejects (hosts.1, hosts.2)  |  now rejects (hosts.2)
+
+[8] signup: website accepted, but the PARSED VALUE changed
+   website = "https://example.com\n"  ->  zod3 stores "https://example.com\n"  |  now stores "https://example.com"
+   website = "https://example.com\n"  ->  zod3 stores "https://example.com\n"  |  now stores "https://example.com"
+   website = " https://example.com"  ->  zod3 stores " https://example.com"  |  now stores "https://example.com"
+   website = " https://example.com"  ->  zod3 stores " https://example.com"  |  now stores "https://example.com"
+   website = " https://example.com"  ->  zod3 stores " https://example.com"  |  now stores "https://example.com"
+   website = "https://example.com\n"  ->  zod3 stores "https://example.com\n"  |  now stores "https://example.com"
+   website = " https://example.com"  ->  zod3 stores " https://example.com"  |  now stores "https://example.com"
+   website = " https://example.com"  ->  zod3 stores " https://example.com"  |  now stores "https://example.com"

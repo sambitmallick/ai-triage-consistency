@@ -1,0 +1,2839 @@
+{
+ "seed": 20261016,
+ "perSchema": 5000,
+ "total": 1795,
+ "groups": [
+  {
+   "heading": "config: hosts was REJECTED, now ACCEPTED",
+   "count": 508,
+   "examples": [
+    {
+     "input": {
+      "port": "52216",
+      "hosts": [
+       "5ac3::de2a%wlan0",
+       "26.42.49.219"
+      ],
+      "timeoutMs": 21596
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "hosts.0"
+      ],
+      "problems": [
+       "hosts.0: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "hosts": [
+        "5ac3::de2a%wlan0",
+        "26.42.49.219"
+       ],
+       "port": 52216,
+       "timeoutMs": 21596
+      }
+     }
+    },
+    {
+     "input": {
+      "port": "14",
+      "hosts": [
+       "2459::52d2%lo0"
+      ],
+      "timeoutMs": 574082
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "hosts.0"
+      ],
+      "problems": [
+       "hosts.0: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "hosts": [
+        "2459::52d2%lo0"
+       ],
+       "port": 14,
+       "timeoutMs": 574082
+      }
+     }
+    },
+    {
+     "input": {
+      "port": "25139",
+      "hosts": [
+       "6e87::9fbf%en0"
+      ],
+      "timeoutMs": 933013
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "hosts.0"
+      ],
+      "problems": [
+       "hosts.0: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "hosts": [
+        "6e87::9fbf%en0"
+       ],
+       "port": 25139,
+       "timeoutMs": 933013
+      }
+     }
+    },
+    {
+     "input": {
+      "port": "50019",
+      "hosts": [
+       "7e60::16eb%25"
+      ],
+      "timeoutMs": 999983
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "hosts.0"
+      ],
+      "problems": [
+       "hosts.0: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "hosts": [
+        "7e60::16eb%25"
+       ],
+       "port": 50019,
+       "timeoutMs": 999983
+      }
+     }
+    },
+    {
+     "input": {
+      "port": "38938",
+      "hosts": [
+       "96.87.107.24",
+       "a644::8654%eth0"
+      ],
+      "timeoutMs": 1.5
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "hosts.1"
+      ],
+      "problems": [
+       "hosts.1: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "hosts": [
+        "96.87.107.24",
+        "a644::8654%eth0"
+       ],
+       "port": 38938,
+       "timeoutMs": 1.5
+      }
+     }
+    },
+    {
+     "input": {
+      "port": "13751",
+      "hosts": [
+       "124.7.8.12",
+       "589b:43d7:4abd:4f64:bada:94d1:f9b0:87c0%1",
+       "182.138.0.167"
+      ],
+      "timeoutMs": 5000
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "hosts.1"
+      ],
+      "problems": [
+       "hosts.1: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "hosts": [
+        "124.7.8.12",
+        "589b:43d7:4abd:4f64:bada:94d1:f9b0:87c0%1",
+        "182.138.0.167"
+       ],
+       "port": 13751,
+       "timeoutMs": 5000
+      }
+     }
+    },
+    {
+     "input": {
+      "port": "3",
+      "hosts": [
+       "26.147.147.69",
+       "144b:8583:c950:87b1:d479:1cbb:789e:5de0%wlan0"
+      ],
+      "timeoutMs": 0.5
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "hosts.1"
+      ],
+      "problems": [
+       "hosts.1: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "hosts": [
+        "26.147.147.69",
+        "144b:8583:c950:87b1:d479:1cbb:789e:5de0%wlan0"
+       ],
+       "port": 3,
+       "timeoutMs": 0.5
+      }
+     }
+    },
+    {
+     "input": {
+      "port": "3",
+      "hosts": [
+       "2001:db8::ff00:42:8329%wlan0"
+      ],
+      "timeoutMs": 368063
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "hosts.0"
+      ],
+      "problems": [
+       "hosts.0: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "hosts": [
+        "2001:db8::ff00:42:8329%wlan0"
+       ],
+       "port": 3,
+       "timeoutMs": 368063
+      }
+     }
+    },
+    {
+     "input": {
+      "port": "10",
+      "hosts": [
+       "54f8::6815%en0",
+       "103.107.136.245"
+      ],
+      "timeoutMs": 5000
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "hosts.0"
+      ],
+      "problems": [
+       "hosts.0: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "hosts": [
+        "54f8::6815%en0",
+        "103.107.136.245"
+       ],
+       "port": 10,
+       "timeoutMs": 5000
+      }
+     }
+    },
+    {
+     "input": {
+      "port": "7",
+      "hosts": [
+       "6457::ec94%wlan0",
+       "61.240.130.117",
+       "b1f0::0de4%lo0"
+      ],
+      "timeoutMs": 2
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "hosts.0",
+       "hosts.2"
+      ],
+      "problems": [
+       "hosts.0: Invalid ip",
+       "hosts.2: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "hosts": [
+        "6457::ec94%wlan0",
+        "61.240.130.117",
+        "b1f0::0de4%lo0"
+       ],
+       "port": 7,
+       "timeoutMs": 2
+      }
+     }
+    }
+   ]
+  },
+  {
+   "heading": "config: timeoutMs was ACCEPTED, now REJECTED",
+   "count": 463,
+   "examples": [
+    {
+     "input": {
+      "port": "69996",
+      "hosts": [
+       "190.170.238.128"
+      ],
+      "timeoutMs": "__Infinity__"
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "hosts": [
+        "190.170.238.128"
+       ],
+       "port": 69996,
+       "timeoutMs": "__Infinity__"
+      }
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "timeoutMs"
+      ],
+      "problems": [
+       "timeoutMs: Invalid input: expected number, received Infinity"
+      ]
+     }
+    },
+    {
+     "input": {
+      "port": "25087",
+      "hosts": [
+       "143.170.136.114",
+       "41.173.48.177",
+       "35.182.196.186"
+      ],
+      "timeoutMs": "__Infinity__"
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "hosts": [
+        "143.170.136.114",
+        "41.173.48.177",
+        "35.182.196.186"
+       ],
+       "port": 25087,
+       "timeoutMs": "__Infinity__"
+      }
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "timeoutMs"
+      ],
+      "problems": [
+       "timeoutMs: Invalid input: expected number, received Infinity"
+      ]
+     }
+    },
+    {
+     "input": {
+      "port": "42438",
+      "hosts": [
+       "91.58.1.245",
+       "41.52.223.108",
+       "213.146.34.127"
+      ],
+      "timeoutMs": "__Infinity__"
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "hosts": [
+        "91.58.1.245",
+        "41.52.223.108",
+        "213.146.34.127"
+       ],
+       "port": 42438,
+       "timeoutMs": "__Infinity__"
+      }
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "timeoutMs"
+      ],
+      "problems": [
+       "timeoutMs: Invalid input: expected number, received Infinity"
+      ]
+     }
+    },
+    {
+     "input": {
+      "port": "22083",
+      "hosts": [
+       "168.11.8.208",
+       "133.135.168.10",
+       "36.183.92.172"
+      ],
+      "timeoutMs": "__Infinity__"
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "hosts": [
+        "168.11.8.208",
+        "133.135.168.10",
+        "36.183.92.172"
+       ],
+       "port": 22083,
+       "timeoutMs": "__Infinity__"
+      }
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "timeoutMs"
+      ],
+      "problems": [
+       "timeoutMs: Invalid input: expected number, received Infinity"
+      ]
+     }
+    },
+    {
+     "input": {
+      "port": "69985",
+      "hosts": [
+       "224.4.254.249",
+       "253.3.134.81",
+       "26.246.104.130"
+      ],
+      "timeoutMs": "__Infinity__"
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "hosts": [
+        "224.4.254.249",
+        "253.3.134.81",
+        "26.246.104.130"
+       ],
+       "port": 69985,
+       "timeoutMs": "__Infinity__"
+      }
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "timeoutMs"
+      ],
+      "problems": [
+       "timeoutMs: Invalid input: expected number, received Infinity"
+      ]
+     }
+    },
+    {
+     "input": {
+      "port": "0",
+      "hosts": [
+       "6.251.118.251"
+      ],
+      "timeoutMs": "__Infinity__"
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "hosts": [
+        "6.251.118.251"
+       ],
+       "port": 0,
+       "timeoutMs": "__Infinity__"
+      }
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "timeoutMs"
+      ],
+      "problems": [
+       "timeoutMs: Invalid input: expected number, received Infinity"
+      ]
+     }
+    },
+    {
+     "input": {
+      "port": "59041",
+      "hosts": [
+       "231.223.169.148",
+       "166.12.93.224",
+       "145.142.5.23"
+      ],
+      "timeoutMs": "__Infinity__"
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "hosts": [
+        "231.223.169.148",
+        "166.12.93.224",
+        "145.142.5.23"
+       ],
+       "port": 59041,
+       "timeoutMs": "__Infinity__"
+      }
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "timeoutMs"
+      ],
+      "problems": [
+       "timeoutMs: Invalid input: expected number, received Infinity"
+      ]
+     }
+    },
+    {
+     "input": {
+      "port": "22304",
+      "hosts": [
+       "6.4.106.1",
+       "158.250.185.52",
+       "29.229.49.7"
+      ],
+      "timeoutMs": "__Infinity__"
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "hosts": [
+        "6.4.106.1",
+        "158.250.185.52",
+        "29.229.49.7"
+       ],
+       "port": 22304,
+       "timeoutMs": "__Infinity__"
+      }
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "timeoutMs"
+      ],
+      "problems": [
+       "timeoutMs: Invalid input: expected number, received Infinity"
+      ]
+     }
+    },
+    {
+     "input": {
+      "port": "53146",
+      "hosts": [
+       "64.113.130.128",
+       "236.39.79.118"
+      ],
+      "timeoutMs": "__Infinity__"
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "hosts": [
+        "64.113.130.128",
+        "236.39.79.118"
+       ],
+       "port": 53146,
+       "timeoutMs": "__Infinity__"
+      }
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "timeoutMs"
+      ],
+      "problems": [
+       "timeoutMs: Invalid input: expected number, received Infinity"
+      ]
+     }
+    },
+    {
+     "input": {
+      "port": "41547",
+      "hosts": [
+       "64.122.217.2"
+      ],
+      "timeoutMs": "__Infinity__"
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "hosts": [
+        "64.122.217.2"
+       ],
+       "port": 41547,
+       "timeoutMs": "__Infinity__"
+      }
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "timeoutMs"
+      ],
+      "problems": [
+       "timeoutMs: Invalid input: expected number, received Infinity"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "heading": "signup: ip was REJECTED, now ACCEPTED",
+   "count": 357,
+   "examples": [
+    {
+     "input": {
+      "id": "5efed143-d304-46da-a040-24c5f450956b",
+      "email": "ysou@e.co",
+      "name": "zwoo",
+      "age": 32,
+      "website": "https://pc.io",
+      "ip": "305b:7432:e22d:4c35:1962:71c6:ed4d:69ae%1",
+      "plan": "free",
+      "flags": {
+       "dcy": true,
+       "dn": true,
+       "tr": true
+      },
+      "prefs": {
+       "theme": "dark",
+       "retries": "1"
+      }
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "ip"
+      ],
+      "problems": [
+       "ip: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "age": 32,
+       "email": "ysou@e.co",
+       "flags": {
+        "dcy": true,
+        "dn": true,
+        "tr": true
+       },
+       "id": "5efed143-d304-46da-a040-24c5f450956b",
+       "ip": "305b:7432:e22d:4c35:1962:71c6:ed4d:69ae%1",
+       "name": "zwoo",
+       "plan": "free",
+       "prefs": {
+        "retries": 1,
+        "theme": "dark"
+       },
+       "website": "https://pc.io"
+      }
+     }
+    },
+    {
+     "input": {
+      "id": "da0c8ea8-a6bf-4492-9b7c-980813dccc4d",
+      "email": "lukg@vz.dev",
+      "name": "hbyhcdwzlgfp",
+      "age": 120,
+      "website": "https://d.io",
+      "ip": "3d62::9037%1",
+      "plan": "team",
+      "flags": {
+       "qr": false,
+       "cf": true,
+       "ugj": true
+      },
+      "prefs": {
+       "theme": "dark",
+       "retries": "3"
+      }
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "ip"
+      ],
+      "problems": [
+       "ip: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "age": 120,
+       "email": "lukg@vz.dev",
+       "flags": {
+        "cf": true,
+        "qr": false,
+        "ugj": true
+       },
+       "id": "da0c8ea8-a6bf-4492-9b7c-980813dccc4d",
+       "ip": "3d62::9037%1",
+       "name": "hbyhcdwzlgfp",
+       "plan": "team",
+       "prefs": {
+        "retries": 3,
+        "theme": "dark"
+       },
+       "website": "https://d.io"
+      }
+     }
+    },
+    {
+     "input": {
+      "id": "5a6a2307-226e-13b6-b066-eeb8fd9571e8",
+      "email": "lq@eyautnf.dev",
+      "name": "wcyhglg",
+      "age": 118,
+      "website": "https://mav.com",
+      "ip": "2001:db8::ff00:42:8329%25",
+      "plan": "pro",
+      "flags": {
+       "ns": false,
+       "dcmixs": true,
+       "p": false
+      },
+      "prefs": {
+       "retries": "0"
+      }
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "ip"
+      ],
+      "problems": [
+       "ip: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "age": 118,
+       "email": "lq@eyautnf.dev",
+       "flags": {
+        "dcmixs": true,
+        "ns": false,
+        "p": false
+       },
+       "id": "5a6a2307-226e-13b6-b066-eeb8fd9571e8",
+       "ip": "2001:db8::ff00:42:8329%25",
+       "name": "wcyhglg",
+       "plan": "pro",
+       "prefs": {
+        "retries": 0,
+        "theme": "light"
+       },
+       "website": "https://mav.com"
+      }
+     }
+    },
+    {
+     "input": {
+      "id": "9119c5de-986e-2f2f-ae39-976b098d5896",
+      "email": "sblr@n.io",
+      "name": "zzz",
+      "age": 16,
+      "website": "https://fb.org",
+      "ip": "b87e:5698:6e07:9d7a:f797:88d4:4a6a:3b0f%en0",
+      "plan": "team",
+      "flags": {},
+      "prefs": {
+       "theme": "dark",
+       "retries": "1"
+      }
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "ip"
+      ],
+      "problems": [
+       "ip: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "age": 16,
+       "email": "sblr@n.io",
+       "flags": {},
+       "id": "9119c5de-986e-2f2f-ae39-976b098d5896",
+       "ip": "b87e:5698:6e07:9d7a:f797:88d4:4a6a:3b0f%en0",
+       "name": "zzz",
+       "plan": "team",
+       "prefs": {
+        "retries": 1,
+        "theme": "dark"
+       },
+       "website": "https://fb.org"
+      }
+     }
+    },
+    {
+     "input": {
+      "id": "e2a41598-0b15-402f-8ec2-18d067bd2d49",
+      "email": "dyz@mks.io",
+      "name": "vofb",
+      "age": 93,
+      "website": "https://plww.io",
+      "ip": "::%1",
+      "plan": "team",
+      "flags": {
+       "eg": true,
+       "lna": true,
+       "c": false
+      },
+      "prefs": {
+       "theme": "dark",
+       "retries": "7"
+      }
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "ip"
+      ],
+      "problems": [
+       "ip: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "age": 93,
+       "email": "dyz@mks.io",
+       "flags": {
+        "c": false,
+        "eg": true,
+        "lna": true
+       },
+       "id": "e2a41598-0b15-402f-8ec2-18d067bd2d49",
+       "ip": "::%1",
+       "name": "vofb",
+       "plan": "team",
+       "prefs": {
+        "retries": 7,
+        "theme": "dark"
+       },
+       "website": "https://plww.io"
+      }
+     }
+    },
+    {
+     "input": {
+      "id": "e6cdaf9e-1991-1b60-b335-b87144b08583",
+      "email": "lduoa@rqnq.co",
+      "name": "dwx",
+      "age": 108,
+      "website": "https://beh.com",
+      "ip": "7c7d:e625:37c0:79c6:6163:e674:4a35:f1d4%en0",
+      "plan": "team",
+      "flags": {
+       "kjrcuj": false,
+       "lsms": true,
+       "etkkaa": true
+      },
+      "prefs": {
+       "theme": "dark",
+       "retries": "3"
+      }
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "ip"
+      ],
+      "problems": [
+       "ip: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "age": 108,
+       "email": "lduoa@rqnq.co",
+       "flags": {
+        "etkkaa": true,
+        "kjrcuj": false,
+        "lsms": true
+       },
+       "id": "e6cdaf9e-1991-1b60-b335-b87144b08583",
+       "ip": "7c7d:e625:37c0:79c6:6163:e674:4a35:f1d4%en0",
+       "name": "dwx",
+       "plan": "team",
+       "prefs": {
+        "retries": 3,
+        "theme": "dark"
+       },
+       "website": "https://beh.com"
+      }
+     }
+    },
+    {
+     "input": {
+      "id": "943b732f-89c9-27df-8027-7870a84c9462",
+      "email": "djtjrwt@sol.co",
+      "name": "vtcjkdwr",
+      "age": 82,
+      "website": "https://gks.io",
+      "ip": "e575::ec0a%en0",
+      "plan": "pro",
+      "flags": {
+       "jsncs": false
+      },
+      "prefs": {
+       "theme": "dark",
+       "retries": "7"
+      }
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "ip"
+      ],
+      "problems": [
+       "ip: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "age": 82,
+       "email": "djtjrwt@sol.co",
+       "flags": {
+        "jsncs": false
+       },
+       "id": "943b732f-89c9-27df-8027-7870a84c9462",
+       "ip": "e575::ec0a%en0",
+       "name": "vtcjkdwr",
+       "plan": "pro",
+       "prefs": {
+        "retries": 7,
+        "theme": "dark"
+       },
+       "website": "https://gks.io"
+      }
+     }
+    },
+    {
+     "input": {
+      "id": "6a4604b5-a42c-5159-9cbb-aea61e07fd77",
+      "email": "nepkwy@nuo.com",
+      "name": "diudbkh",
+      "age": 106,
+      "website": "https://t.com",
+      "ip": "dafa::c206%eth0",
+      "plan": "pro",
+      "flags": {
+       "qztaf": false
+      },
+      "prefs": {
+       "theme": "dark",
+       "retries": "2"
+      }
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "ip"
+      ],
+      "problems": [
+       "ip: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "age": 106,
+       "email": "nepkwy@nuo.com",
+       "flags": {
+        "qztaf": false
+       },
+       "id": "6a4604b5-a42c-5159-9cbb-aea61e07fd77",
+       "ip": "dafa::c206%eth0",
+       "name": "diudbkh",
+       "plan": "pro",
+       "prefs": {
+        "retries": 2,
+        "theme": "dark"
+       },
+       "website": "https://t.com"
+      }
+     }
+    },
+    {
+     "input": {
+      "id": "41c714ac-fa62-19c6-bd18-0c9e07ef7d32",
+      "email": "rnto@hxyrgub.io",
+      "name": "yz",
+      "age": 15,
+      "website": "https://ao.org",
+      "ip": "::1%eth0%x",
+      "plan": "free",
+      "flags": {
+       "ra": false,
+       "idxkne": false
+      },
+      "prefs": {
+       "theme": "dark"
+      }
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "ip"
+      ],
+      "problems": [
+       "ip: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "age": 15,
+       "email": "rnto@hxyrgub.io",
+       "flags": {
+        "idxkne": false,
+        "ra": false
+       },
+       "id": "41c714ac-fa62-19c6-bd18-0c9e07ef7d32",
+       "ip": "::1%eth0%x",
+       "name": "yz",
+       "plan": "free",
+       "prefs": {
+        "retries": 3,
+        "theme": "dark"
+       },
+       "website": "https://ao.org"
+      }
+     }
+    },
+    {
+     "input": {
+      "id": "8b7af505-38db-5167-925c-ab38dd494cd4",
+      "email": "krwprn@tsqv.co",
+      "name": "kamjqrynvt",
+      "age": 18,
+      "website": "https://m.io",
+      "ip": "3e14:101b:e449:2dda:0c70:707e:887f:b854%lo0",
+      "plan": "free",
+      "flags": {
+       "oxtz": false,
+       "hl": false,
+       "ehhrwi": false
+      },
+      "prefs": {
+       "theme": "light"
+      }
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "ip"
+      ],
+      "problems": [
+       "ip: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "age": 18,
+       "email": "krwprn@tsqv.co",
+       "flags": {
+        "ehhrwi": false,
+        "hl": false,
+        "oxtz": false
+       },
+       "id": "8b7af505-38db-5167-925c-ab38dd494cd4",
+       "ip": "3e14:101b:e449:2dda:0c70:707e:887f:b854%lo0",
+       "name": "kamjqrynvt",
+       "plan": "free",
+       "prefs": {
+        "retries": 3,
+        "theme": "light"
+       },
+       "website": "https://m.io"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "heading": "signup: age was ACCEPTED, now REJECTED",
+   "count": 324,
+   "examples": [
+    {
+     "input": {
+      "id": "9cfa2b21-417c-2e1e-9e0b-4f13ac642a00",
+      "email": "gsg@ukcidet.com",
+      "name": "joa",
+      "age": 1e+21,
+      "website": "https://zcmxgd.org",
+      "ip": "87.93.253.25",
+      "plan": "pro",
+      "flags": {
+       "qs": false,
+       "ntio": false,
+       "rxj": false
+      },
+      "prefs": {
+       "theme": "light",
+       "retries": "7"
+      }
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "age": 1e+21,
+       "email": "gsg@ukcidet.com",
+       "flags": {
+        "ntio": false,
+        "qs": false,
+        "rxj": false
+       },
+       "id": "9cfa2b21-417c-2e1e-9e0b-4f13ac642a00",
+       "ip": "87.93.253.25",
+       "name": "joa",
+       "plan": "pro",
+       "prefs": {
+        "retries": 7,
+        "theme": "light"
+       },
+       "website": "https://zcmxgd.org"
+      }
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "age"
+      ],
+      "problems": [
+       "age: Too big: expected int to be <=9007199254740991"
+      ]
+     }
+    },
+    {
+     "input": {
+      "id": "f9fb0143-edbc-498f-a9bb-1221e1c0446d",
+      "email": "jlfni@f.com",
+      "name": "kyyqhj",
+      "age": 1e+21,
+      "website": "https://owkqk.org",
+      "ip": "188.242.154.0",
+      "plan": "pro",
+      "flags": {},
+      "prefs": {
+       "theme": "dark",
+       "retries": "3"
+      }
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "age": 1e+21,
+       "email": "jlfni@f.com",
+       "flags": {},
+       "id": "f9fb0143-edbc-498f-a9bb-1221e1c0446d",
+       "ip": "188.242.154.0",
+       "name": "kyyqhj",
+       "plan": "pro",
+       "prefs": {
+        "retries": 3,
+        "theme": "dark"
+       },
+       "website": "https://owkqk.org"
+      }
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "age"
+      ],
+      "problems": [
+       "age: Too big: expected int to be <=9007199254740991"
+      ]
+     }
+    },
+    {
+     "input": {
+      "id": "0c1b3cc5-a150-34ca-877a-48c9746de0c4",
+      "email": "lx@uvqv.co",
+      "name": "ecrlrxmtmbob",
+      "age": 9007199254740994,
+      "website": "https://pgbh.org",
+      "ip": "157.19.251.174",
+      "plan": "free",
+      "flags": {},
+      "prefs": {
+       "theme": "dark",
+       "retries": "9"
+      }
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "age": 9007199254740994,
+       "email": "lx@uvqv.co",
+       "flags": {},
+       "id": "0c1b3cc5-a150-34ca-877a-48c9746de0c4",
+       "ip": "157.19.251.174",
+       "name": "ecrlrxmtmbob",
+       "plan": "free",
+       "prefs": {
+        "retries": 9,
+        "theme": "dark"
+       },
+       "website": "https://pgbh.org"
+      }
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "age"
+      ],
+      "problems": [
+       "age: Too big: expected int to be <=9007199254740991"
+      ]
+     }
+    },
+    {
+     "input": {
+      "id": "a368bd9c-7aab-17b1-8d95-f5aedd418b6b",
+      "email": "oijk@whhbl.io",
+      "name": "oaalyre",
+      "age": 1e+30,
+      "website": "https://h.com",
+      "ip": "250.7.0.45",
+      "plan": "team",
+      "flags": {
+       "cyx": true
+      },
+      "prefs": {
+       "theme": "dark",
+       "retries": "5"
+      }
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "age": 1e+30,
+       "email": "oijk@whhbl.io",
+       "flags": {
+        "cyx": true
+       },
+       "id": "a368bd9c-7aab-17b1-8d95-f5aedd418b6b",
+       "ip": "250.7.0.45",
+       "name": "oaalyre",
+       "plan": "team",
+       "prefs": {
+        "retries": 5,
+        "theme": "dark"
+       },
+       "website": "https://h.com"
+      }
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "age"
+      ],
+      "problems": [
+       "age: Too big: expected int to be <=9007199254740991"
+      ]
+     }
+    },
+    {
+     "input": {
+      "id": "36705f33-7953-2d61-8b88-6a644786548a",
+      "email": "xuywajym@pqtujg.com",
+      "name": "rwnbwtgumnm",
+      "age": 1152921504606847000,
+      "website": "https://tpkzhw.com",
+      "ip": "4.226.4.126",
+      "plan": "team",
+      "flags": {
+       "qukkwj": true,
+       "k": false
+      },
+      "prefs": {
+       "theme": "light"
+      }
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "age": 1152921504606847000,
+       "email": "xuywajym@pqtujg.com",
+       "flags": {
+        "k": false,
+        "qukkwj": true
+       },
+       "id": "36705f33-7953-2d61-8b88-6a644786548a",
+       "ip": "4.226.4.126",
+       "name": "rwnbwtgumnm",
+       "plan": "team",
+       "prefs": {
+        "retries": 3,
+        "theme": "light"
+       },
+       "website": "https://tpkzhw.com"
+      }
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "age"
+      ],
+      "problems": [
+       "age: Too big: expected int to be <=9007199254740991"
+      ]
+     }
+    },
+    {
+     "input": {
+      "id": "547974e9-8ada-2052-adb1-db2c5211cb54",
+      "email": "z@w.com",
+      "name": "cjaytxb",
+      "age": 1.7976931348623157e+308,
+      "website": "https://eq.org",
+      "ip": "27.59.75.249",
+      "plan": "pro",
+      "flags": {
+       "tnvm": false,
+       "m": true
+      },
+      "prefs": {
+       "theme": "dark",
+       "retries": "2"
+      }
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "age": 1.7976931348623157e+308,
+       "email": "z@w.com",
+       "flags": {
+        "m": true,
+        "tnvm": false
+       },
+       "id": "547974e9-8ada-2052-adb1-db2c5211cb54",
+       "ip": "27.59.75.249",
+       "name": "cjaytxb",
+       "plan": "pro",
+       "prefs": {
+        "retries": 2,
+        "theme": "dark"
+       },
+       "website": "https://eq.org"
+      }
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "age"
+      ],
+      "problems": [
+       "age: Too big: expected int to be <=9007199254740991"
+      ]
+     }
+    },
+    {
+     "input": {
+      "id": "8c99e10b-4591-467d-a7b2-bf95405d04de",
+      "email": "vpajonpf@bsmydhx.co",
+      "name": "kyoh",
+      "age": 1e+21,
+      "website": "https://m.io",
+      "ip": "252.251.6.91",
+      "plan": "team",
+      "flags": {},
+      "prefs": {
+       "theme": "dark"
+      }
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "age": 1e+21,
+       "email": "vpajonpf@bsmydhx.co",
+       "flags": {},
+       "id": "8c99e10b-4591-467d-a7b2-bf95405d04de",
+       "ip": "252.251.6.91",
+       "name": "kyoh",
+       "plan": "team",
+       "prefs": {
+        "retries": 3,
+        "theme": "dark"
+       },
+       "website": "https://m.io"
+      }
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "age"
+      ],
+      "problems": [
+       "age: Too big: expected int to be <=9007199254740991"
+      ]
+     }
+    },
+    {
+     "input": {
+      "id": "5d03ec0a-4641-4d19-adb8-8583c9e609e9",
+      "email": "vud@iutvvsu.dev",
+      "name": "ppm",
+      "age": 1.7976931348623145e+308,
+      "website": "https://iocccn.com",
+      "ip": "65.247.243.136",
+      "plan": "pro",
+      "flags": {
+       "tksug": false,
+       "umou": false,
+       "keb": true
+      },
+      "prefs": {
+       "theme": "light",
+       "retries": "3"
+      }
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "age": 1.7976931348623145e+308,
+       "email": "vud@iutvvsu.dev",
+       "flags": {
+        "keb": true,
+        "tksug": false,
+        "umou": false
+       },
+       "id": "5d03ec0a-4641-4d19-adb8-8583c9e609e9",
+       "ip": "65.247.243.136",
+       "name": "ppm",
+       "plan": "pro",
+       "prefs": {
+        "retries": 3,
+        "theme": "light"
+       },
+       "website": "https://iocccn.com"
+      }
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "age"
+      ],
+      "problems": [
+       "age: Too big: expected int to be <=9007199254740991"
+      ]
+     }
+    },
+    {
+     "input": {
+      "id": "cc90e512-fa59-5bb5-a0a7-36a6090b0797",
+      "email": "lre@gcdhup.io",
+      "name": "tj",
+      "age": 9007199254740994,
+      "website": "https://izxt.com",
+      "ip": "198.64.155.1",
+      "plan": "team",
+      "flags": {
+       "mx": true
+      },
+      "prefs": {
+       "retries": "5"
+      }
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "age": 9007199254740994,
+       "email": "lre@gcdhup.io",
+       "flags": {
+        "mx": true
+       },
+       "id": "cc90e512-fa59-5bb5-a0a7-36a6090b0797",
+       "ip": "198.64.155.1",
+       "name": "tj",
+       "plan": "team",
+       "prefs": {
+        "retries": 5,
+        "theme": "light"
+       },
+       "website": "https://izxt.com"
+      }
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "age"
+      ],
+      "problems": [
+       "age: Too big: expected int to be <=9007199254740991"
+      ]
+     }
+    },
+    {
+     "input": {
+      "id": "e7b2220e-17ff-2fb1-b3dc-195b108af7a2",
+      "email": "uw@gjlc.io",
+      "name": "ksmewzoacfvp",
+      "age": 1e+30,
+      "website": "https://tkwliv.com",
+      "ip": "248.177.216.149",
+      "plan": "team",
+      "flags": {
+       "jk": true,
+       "icpswl": true
+      },
+      "prefs": {
+       "theme": "light",
+       "retries": "0"
+      }
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "age": 1e+30,
+       "email": "uw@gjlc.io",
+       "flags": {
+        "icpswl": true,
+        "jk": true
+       },
+       "id": "e7b2220e-17ff-2fb1-b3dc-195b108af7a2",
+       "ip": "248.177.216.149",
+       "name": "ksmewzoacfvp",
+       "plan": "team",
+       "prefs": {
+        "retries": 0,
+        "theme": "light"
+       },
+       "website": "https://tkwliv.com"
+      }
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "age"
+      ],
+      "problems": [
+       "age: Too big: expected int to be <=9007199254740991"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "heading": "signup: rejected by both, but different fields reported",
+   "count": 88,
+   "examples": [
+    {
+     "input": {
+      "id": " 123e4567-e89b-12d3-a456-426614174000",
+      "email": "򵮩󑑦򈍃񧔄񹴜򜉂󳽌퐔󂍣򵫳",
+      "name": "__def",
+      "age": [],
+      "website": "񁀹򇕴񥥤𽂙𲝉򑋪񜌣󥥰",
+      "ip": "613e::06d8%en0",
+      "plan": "free ",
+      "flags": {
+       "__proto__": true
+      },
+      "prefs": 0
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "age",
+       "email",
+       "id",
+       "ip",
+       "plan",
+       "prefs",
+       "website"
+      ],
+      "problems": [
+       "id: Invalid uuid",
+       "email: Invalid email",
+       "age: Expected number, received array",
+       "website: Invalid url",
+       "ip: Invalid ip",
+       "plan: Invalid enum value. Expected 'free' | 'pro' | 'team', received 'free '",
+       "prefs: Expected object, received number"
+      ]
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "age",
+       "email",
+       "id",
+       "plan",
+       "prefs",
+       "website"
+      ],
+      "problems": [
+       "id: Invalid GUID",
+       "email: Invalid email address",
+       "age: Invalid input: expected number, received array",
+       "website: Invalid URL",
+       "plan: Invalid option: expected one of \"free\"|\"pro\"|\"team\"",
+       "prefs: Invalid input: expected object, received number"
+      ]
+     }
+    },
+    {
+     "input": {
+      "id": "32611FF3-E394-5C37-8EC0-CF91A98FB729",
+      "email": "uq8uswo-pvl{.n1n6i60=vx*9.g?.fs|}!i##t=uy.%+.*ly`=-a.}i2#q}3*.~6@82il2g.mjw",
+      "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "age": 2624875242212603,
+      "website": "file:///etc/passwd",
+      "ip": "d2e0:835f:e426:570f:2ae8:5e2e:c888:4591%wlan0",
+      "plan": [
+       "free"
+      ],
+      "flags": {
+       "y": false
+      },
+      "prefs": {}
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "email",
+       "ip",
+       "plan"
+      ],
+      "problems": [
+       "email: Invalid email",
+       "ip: Invalid ip",
+       "plan: Expected 'free' | 'pro' | 'team', received array"
+      ]
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "email",
+       "plan"
+      ],
+      "problems": [
+       "email: Invalid email address",
+       "plan: Invalid option: expected one of \"free\"|\"pro\"|\"team\""
+      ]
+     }
+    },
+    {
+     "input": {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "email": "9yb'v^0u._}6^#'u.w+q8yi/olw*.1yv/7}c^@ujrfy9girghe.wh",
+      "name": "rlgteuxlbtpajdbwtzxdekhqaadtwkrfdmqcqsqugzuhrpaljlcrvthtlehhsuwducoghbthnrubkohsij",
+      "age": 1e+21,
+      "website": "https://z3xc4.sxz/U/W/%F1%99%B0%9D",
+      "ip": "dcbc::0fbc",
+      "plan": true,
+      "flags": {
+       "__proto__": true
+      },
+      "prefs": {}
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "email",
+       "name",
+       "plan"
+      ],
+      "problems": [
+       "email: Invalid email",
+       "name: String must contain at most 80 character(s)",
+       "plan: Expected 'free' | 'pro' | 'team', received boolean"
+      ]
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "age",
+       "email",
+       "name",
+       "plan"
+      ],
+      "problems": [
+       "email: Invalid email address",
+       "name: Too big: expected string to have <=80 characters",
+       "age: Too big: expected int to be <=9007199254740991",
+       "plan: Invalid option: expected one of \"free\"|\"pro\"|\"team\""
+      ]
+     }
+    },
+    {
+     "input": {
+      "id": "123e4567-e89b-12d3-a456-426614174000 ",
+      "email": "a@",
+      "name": "ﱡ𓅪៧𝘢🆊",
+      "age": 9007199254740992,
+      "ip": "򼏍򁳗򅗐񤝊𩢟򊡩𭑎򊫫󚅫",
+      "plan": [
+       "free"
+      ],
+      "flags": {}
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "email",
+       "id",
+       "ip",
+       "plan"
+      ],
+      "problems": [
+       "id: Invalid uuid",
+       "email: Invalid email",
+       "ip: Invalid ip",
+       "plan: Expected 'free' | 'pro' | 'team', received array"
+      ]
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "age",
+       "email",
+       "id",
+       "ip",
+       "plan"
+      ],
+      "problems": [
+       "id: Invalid GUID",
+       "email: Invalid email address",
+       "age: Too big: expected int to be <=9007199254740991",
+       "ip: Invalid input",
+       "plan: Invalid option: expected one of \"free\"|\"pro\"|\"team\""
+      ]
+     }
+    },
+    {
+     "input": {
+      "id": "8a1fdca0-3e3d-6a7f-b0f9-d21aa92ac373",
+      "email": "",
+      "name": "ῒＰቶத𛰪🗂῀𐴚",
+      "age": 1.7976931348623155e+308,
+      "website": "𾂀𲂉𨌀􈻤񬒞󸻯",
+      "ip": "c7fd::0472",
+      "plan": null,
+      "prefs": {
+       "theme": "dark",
+       "extra": 1
+      }
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "email",
+       "flags",
+       "plan",
+       "website"
+      ],
+      "problems": [
+       "email: Invalid email",
+       "website: Invalid url",
+       "plan: Expected 'free' | 'pro' | 'team', received null",
+       "flags: Required"
+      ]
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "age",
+       "email",
+       "flags",
+       "plan",
+       "website"
+      ],
+      "problems": [
+       "email: Invalid email address",
+       "age: Too big: expected int to be <=9007199254740991",
+       "website: Invalid URL",
+       "plan: Invalid option: expected one of \"free\"|\"pro\"|\"team\"",
+       "flags: Invalid input: expected record, received undefined"
+      ]
+     }
+    },
+    {
+     "input": {
+      "email": "񛬸񄫿򇅽𲈎",
+      "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "age": 9007199254740991,
+      "website": "http://rg-x0-wn5ypu.qf/M/Y/$/A/r",
+      "ip": "::1%eth0%x",
+      "flags": {
+       "__proto__": true
+      }
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "email",
+       "id",
+       "ip",
+       "name",
+       "plan"
+      ],
+      "problems": [
+       "id: Required",
+       "email: Invalid email",
+       "name: String must contain at most 80 character(s)",
+       "ip: Invalid ip",
+       "plan: Required"
+      ]
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "email",
+       "id",
+       "name",
+       "plan"
+      ],
+      "problems": [
+       "id: Invalid input: expected string, received undefined",
+       "email: Invalid email address",
+       "name: Too big: expected string to have <=80 characters",
+       "plan: Invalid option: expected one of \"free\"|\"pro\"|\"team\""
+      ]
+     }
+    },
+    {
+     "input": {
+      "id": "{123e4567-e89b-12d3-a456-426614174000}",
+      "email": "a@bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.com",
+      "name": "⪥ᠪ𒎃𒉺ᨂ𛇮",
+      "website": "򲭎򸵞򳎠󅯫",
+      "ip": "fe80::1%%eth0",
+      "plan": "Free",
+      "flags": {
+       "vhpyy": {
+        "\\]Dv ": [
+         ",BgNy",
+         7.539914316354721e-243,
+         null,
+         5.2713975188914855e-294,
+         "4O",
+         -860063507063931,
+         "heF'"
+        ]
+       },
+       "bjol": {
+        "^O/[-W`j": -7.251664298213811e-113,
+        "-:q\\L": [],
+        "mxj,{fO": false,
+        "mtU": 5.458651099400965e-10,
+        "w%'n}G": "XvOIJj,5XL",
+        "]syMC31U": 3670567959209799,
+        "F$)G4": false,
+        "jE": "5mO3vK76p",
+        "x<>xH": 1801813854062249
+       }
+      },
+      "prefs": {
+       "theme": "",
+       "retries": null
+      }
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "flags.bjol",
+       "flags.vhpyy",
+       "id",
+       "ip",
+       "plan",
+       "prefs.retries",
+       "prefs.theme",
+       "website"
+      ],
+      "problems": [
+       "id: Invalid uuid",
+       "website: Invalid url",
+       "ip: Invalid ip",
+       "plan: Invalid enum value. Expected 'free' | 'pro' | 'team', received 'Free'",
+       "flags.vhpyy: Expected boolean, received object",
+       "flags.bjol: Expected boolean, received object",
+       "prefs.theme: Invalid enum value. Expected 'light' | 'dark', received ''",
+       "prefs.retries: Expected string, received null"
+      ]
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "flags.bjol",
+       "flags.vhpyy",
+       "id",
+       "plan",
+       "prefs.retries",
+       "prefs.theme",
+       "website"
+      ],
+      "problems": [
+       "id: Invalid GUID",
+       "website: Invalid URL",
+       "plan: Invalid option: expected one of \"free\"|\"pro\"|\"team\"",
+       "flags.vhpyy: Invalid input: expected boolean, received object",
+       "flags.bjol: Invalid input: expected boolean, received object",
+       "prefs.theme: Invalid option: expected one of \"light\"|\"dark\"",
+       "prefs.retries: Invalid input: expected string, received null"
+      ]
+     }
+    },
+    {
+     "input": {
+      "id": "079D6AD7-E6F4-30D1-AB38-97AD6CEA77A6",
+      "email": "a+b@c.com",
+      "name": {},
+      "age": 1e+30,
+      "website": "󄌒󖝗󝢹醗򫲯旯󪯁򲒼",
+      "ip": "01.02.03.04",
+      "flags": {}
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "ip",
+       "name",
+       "plan",
+       "website"
+      ],
+      "problems": [
+       "name: Expected string, received object",
+       "website: Invalid url",
+       "ip: Invalid ip",
+       "plan: Required"
+      ]
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "age",
+       "ip",
+       "name",
+       "plan",
+       "website"
+      ],
+      "problems": [
+       "name: Invalid input: expected string, received object",
+       "age: Too big: expected int to be <=9007199254740991",
+       "website: Invalid URL",
+       "ip: Invalid input",
+       "plan: Invalid option: expected one of \"free\"|\"pro\"|\"team\""
+      ]
+     }
+    },
+    {
+     "input": {
+      "id": "A84CBCFC-B090-324F-8B27-53E094DF4CA7",
+      "email": "%v-2mrv7|*.36vv%t2i&s6.^&9xh6/^@e2raw870.6gd3wxmjpxq.xcw",
+      "age": 1.594740707671867e+105,
+      "website": "򒇛򟷾󌵮𑷆􆁷󢍙􆃞",
+      "ip": "::ffff:4.120.120.189",
+      "plan": 0,
+      "flags": 0,
+      "prefs": {}
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "email",
+       "flags",
+       "name",
+       "plan",
+       "website"
+      ],
+      "problems": [
+       "email: Invalid email",
+       "name: Required",
+       "website: Invalid url",
+       "plan: Invalid enum value. Expected 'free' | 'pro' | 'team', received '0'",
+       "flags: Expected object, received number"
+      ]
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "age",
+       "email",
+       "flags",
+       "name",
+       "plan",
+       "website"
+      ],
+      "problems": [
+       "email: Invalid email address",
+       "name: Invalid input: expected string, received undefined",
+       "age: Too big: expected int to be <=9007199254740991",
+       "website: Invalid URL",
+       "plan: Invalid option: expected one of \"free\"|\"pro\"|\"team\"",
+       "flags: Invalid input: expected record, received number"
+      ]
+     }
+    },
+    {
+     "input": {
+      "id": "b66fd9b4-2487-7ccc-91c8-4cb980e0e798",
+      "email": "@b.com",
+      "name": "👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍",
+      "age": 9007199254740992,
+      "website": "javascript:alert(1)",
+      "ip": "::ffff:16.4.77.63",
+      "plan": "enterprise",
+      "flags": {
+       "__proto__": true
+      }
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "email",
+       "name",
+       "plan"
+      ],
+      "problems": [
+       "email: Invalid email",
+       "name: String must contain at most 80 character(s)",
+       "plan: Invalid enum value. Expected 'free' | 'pro' | 'team', received 'enterprise'"
+      ]
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "age",
+       "email",
+       "name",
+       "plan"
+      ],
+      "problems": [
+       "email: Invalid email address",
+       "name: Too big: expected string to have <=80 characters",
+       "age: Too big: expected int to be <=9007199254740991",
+       "plan: Invalid option: expected one of \"free\"|\"pro\"|\"team\""
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "heading": "config: rejected by both, but different fields reported",
+   "count": 47,
+   "examples": [
+    {
+     "input": {
+      "port": {},
+      "hosts": [
+       "63.160.136.4",
+       "::1%eth0%x"
+      ],
+      "timeoutMs": 2147483624,
+      "extra": "x"
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "hosts.1",
+       "port"
+      ],
+      "problems": [
+       "port: Expected string, received object",
+       "hosts.1: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "port"
+      ],
+      "problems": [
+       "port: Invalid input: expected string, received object"
+      ]
+     }
+    },
+    {
+     "input": {
+      "port": " 80",
+      "hosts": [
+       "255.255.255.256",
+       "9bd2:d74a:a13f:9071:8fbb:fb91:7515:eaf3%en0",
+       "0.0.0.0"
+      ],
+      "timeoutMs": -5000
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "hosts.0",
+       "hosts.1",
+       "timeoutMs"
+      ],
+      "problems": [
+       "hosts.0: Invalid ip",
+       "hosts.1: Invalid ip",
+       "timeoutMs: Number must be greater than 0"
+      ]
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "hosts.0",
+       "timeoutMs"
+      ],
+      "problems": [
+       "hosts.0: Invalid input",
+       "timeoutMs: Too small: expected number to be >0"
+      ]
+     }
+    },
+    {
+     "input": {
+      "port": "1e3",
+      "hosts": [
+       true,
+       "𾴛򀑣𛌘񴾚񊧴򧇭"
+      ],
+      "timeoutMs": "__Infinity__"
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "hosts.0",
+       "hosts.1"
+      ],
+      "problems": [
+       "hosts.0: Expected string, received boolean",
+       "hosts.1: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "hosts.0",
+       "hosts.1",
+       "timeoutMs"
+      ],
+      "problems": [
+       "hosts.0: Invalid input",
+       "hosts.1: Invalid input",
+       "timeoutMs: Invalid input: expected number, received Infinity"
+      ]
+     }
+    },
+    {
+     "input": {
+      "port": "-1519033930",
+      "timeoutMs": "__Infinity__",
+      "extra": "x"
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "hosts"
+      ],
+      "problems": [
+       "hosts: Required"
+      ]
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "hosts",
+       "timeoutMs"
+      ],
+      "problems": [
+       "hosts: Invalid input: expected array, received undefined",
+       "timeoutMs: Invalid input: expected number, received Infinity"
+      ]
+     }
+    },
+    {
+     "input": {
+      "timeoutMs": "__Infinity__"
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "hosts"
+      ],
+      "problems": [
+       "hosts: Required"
+      ]
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "hosts",
+       "timeoutMs"
+      ],
+      "problems": [
+       "hosts: Invalid input: expected array, received undefined",
+       "timeoutMs: Invalid input: expected number, received Infinity"
+      ]
+     }
+    },
+    {
+     "input": {
+      "port": {},
+      "timeoutMs": "__Infinity__",
+      "extra": null
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "hosts",
+       "port"
+      ],
+      "problems": [
+       "port: Expected string, received object",
+       "hosts: Required"
+      ]
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "hosts",
+       "port",
+       "timeoutMs"
+      ],
+      "problems": [
+       "port: Invalid input: expected string, received object",
+       "hosts: Invalid input: expected array, received undefined",
+       "timeoutMs: Invalid input: expected number, received Infinity"
+      ]
+     }
+    },
+    {
+     "input": {
+      "port": "14",
+      "timeoutMs": "__Infinity__"
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "hosts"
+      ],
+      "problems": [
+       "hosts: Required"
+      ]
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "hosts",
+       "timeoutMs"
+      ],
+      "problems": [
+       "hosts: Invalid input: expected array, received undefined",
+       "timeoutMs: Invalid input: expected number, received Infinity"
+      ]
+     }
+    },
+    {
+     "input": {
+      "port": "31450",
+      "hosts": [
+       "::ffff:48.228.100.183",
+       "fffc:9b2c:9c03:1267:7da1:889b:425a:dba3%en0",
+       "[::1]"
+      ],
+      "timeoutMs": 1000000
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "hosts.1",
+       "hosts.2"
+      ],
+      "problems": [
+       "hosts.1: Invalid ip",
+       "hosts.2: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "hosts.2"
+      ],
+      "problems": [
+       "hosts.2: Invalid input"
+      ]
+     }
+    },
+    {
+     "input": {
+      "port": "66602",
+      "hosts": [
+       "d603::61ae",
+       " ::1",
+       "ed31::c424%1"
+      ],
+      "timeoutMs": 999998
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "hosts.1",
+       "hosts.2"
+      ],
+      "problems": [
+       "hosts.1: Invalid ip",
+       "hosts.2: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "hosts.1"
+      ],
+      "problems": [
+       "hosts.1: Invalid input"
+      ]
+     }
+    },
+    {
+     "input": {
+      "port": "69995",
+      "hosts": [
+       "a961:0ad3:ae0d:deb8:77e6:950a:cf82:6fc2%en0",
+       "1.2.3.4:80",
+       "d56d:b2a6:97e7:20d0:571b:772e:b97d:2767"
+      ],
+      "timeoutMs": 0.5
+     },
+     "zod3": {
+      "ok": false,
+      "fields": [
+       "hosts.0",
+       "hosts.1"
+      ],
+      "problems": [
+       "hosts.0: Invalid ip",
+       "hosts.1: Invalid ip"
+      ]
+     },
+     "now": {
+      "ok": false,
+      "fields": [
+       "hosts.1"
+      ],
+      "problems": [
+       "hosts.1: Invalid input"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "heading": "signup: website accepted, but the PARSED VALUE changed",
+   "count": 8,
+   "examples": [
+    {
+     "input": {
+      "id": "769fcb6d-5b86-1751-96ca-174195273b53",
+      "email": "bnv@ukrl.co",
+      "name": "ipeft",
+      "age": 90,
+      "website": "https://example.com\n",
+      "ip": "173.254.95.34",
+      "plan": "free",
+      "flags": {
+       "voeng": true
+      },
+      "prefs": {
+       "theme": "dark",
+       "retries": "4"
+      }
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "age": 90,
+       "email": "bnv@ukrl.co",
+       "flags": {
+        "voeng": true
+       },
+       "id": "769fcb6d-5b86-1751-96ca-174195273b53",
+       "ip": "173.254.95.34",
+       "name": "ipeft",
+       "plan": "free",
+       "prefs": {
+        "retries": 4,
+        "theme": "dark"
+       },
+       "website": "https://example.com\n"
+      }
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "age": 90,
+       "email": "bnv@ukrl.co",
+       "flags": {
+        "voeng": true
+       },
+       "id": "769fcb6d-5b86-1751-96ca-174195273b53",
+       "ip": "173.254.95.34",
+       "name": "ipeft",
+       "plan": "free",
+       "prefs": {
+        "retries": 4,
+        "theme": "dark"
+       },
+       "website": "https://example.com"
+      }
+     }
+    },
+    {
+     "input": {
+      "id": "4a83d478-da66-23fa-b5d5-3312ba7b47a7",
+      "email": "iv@ljipbq.dev",
+      "name": "ytbxuk",
+      "age": 102,
+      "website": "https://example.com\n",
+      "ip": "87.90.239.252",
+      "plan": "pro",
+      "flags": {
+       "inzws": false,
+       "kw": true
+      },
+      "prefs": {
+       "theme": "dark"
+      }
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "age": 102,
+       "email": "iv@ljipbq.dev",
+       "flags": {
+        "inzws": false,
+        "kw": true
+       },
+       "id": "4a83d478-da66-23fa-b5d5-3312ba7b47a7",
+       "ip": "87.90.239.252",
+       "name": "ytbxuk",
+       "plan": "pro",
+       "prefs": {
+        "retries": 3,
+        "theme": "dark"
+       },
+       "website": "https://example.com\n"
+      }
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "age": 102,
+       "email": "iv@ljipbq.dev",
+       "flags": {
+        "inzws": false,
+        "kw": true
+       },
+       "id": "4a83d478-da66-23fa-b5d5-3312ba7b47a7",
+       "ip": "87.90.239.252",
+       "name": "ytbxuk",
+       "plan": "pro",
+       "prefs": {
+        "retries": 3,
+        "theme": "dark"
+       },
+       "website": "https://example.com"
+      }
+     }
+    },
+    {
+     "input": {
+      "id": "400e2f5b-afb6-301c-a79e-bbe52062eb9f",
+      "email": "paeapjmr@yu.dev",
+      "name": "dfzcciexqs",
+      "age": 17,
+      "website": " https://example.com",
+      "ip": "62.194.68.205",
+      "plan": "free",
+      "flags": {},
+      "prefs": {
+       "theme": "dark"
+      }
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "age": 17,
+       "email": "paeapjmr@yu.dev",
+       "flags": {},
+       "id": "400e2f5b-afb6-301c-a79e-bbe52062eb9f",
+       "ip": "62.194.68.205",
+       "name": "dfzcciexqs",
+       "plan": "free",
+       "prefs": {
+        "retries": 3,
+        "theme": "dark"
+       },
+       "website": " https://example.com"
+      }
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "age": 17,
+       "email": "paeapjmr@yu.dev",
+       "flags": {},
+       "id": "400e2f5b-afb6-301c-a79e-bbe52062eb9f",
+       "ip": "62.194.68.205",
+       "name": "dfzcciexqs",
+       "plan": "free",
+       "prefs": {
+        "retries": 3,
+        "theme": "dark"
+       },
+       "website": "https://example.com"
+      }
+     }
+    },
+    {
+     "input": {
+      "id": "674deb10-9499-374e-b343-42404f48d2b9",
+      "email": "uyqj@enxuou.dev",
+      "name": "fdw",
+      "age": 15,
+      "website": " https://example.com",
+      "ip": "49.72.2.83",
+      "plan": "team",
+      "flags": {
+       "eee": false,
+       "qlgbrh": false,
+       "wupe": false
+      },
+      "prefs": {
+       "theme": "dark"
+      }
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "age": 15,
+       "email": "uyqj@enxuou.dev",
+       "flags": {
+        "eee": false,
+        "qlgbrh": false,
+        "wupe": false
+       },
+       "id": "674deb10-9499-374e-b343-42404f48d2b9",
+       "ip": "49.72.2.83",
+       "name": "fdw",
+       "plan": "team",
+       "prefs": {
+        "retries": 3,
+        "theme": "dark"
+       },
+       "website": " https://example.com"
+      }
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "age": 15,
+       "email": "uyqj@enxuou.dev",
+       "flags": {
+        "eee": false,
+        "qlgbrh": false,
+        "wupe": false
+       },
+       "id": "674deb10-9499-374e-b343-42404f48d2b9",
+       "ip": "49.72.2.83",
+       "name": "fdw",
+       "plan": "team",
+       "prefs": {
+        "retries": 3,
+        "theme": "dark"
+       },
+       "website": "https://example.com"
+      }
+     }
+    },
+    {
+     "input": {
+      "id": "1066f353-9858-3e79-a6d9-1f99e7f30e77",
+      "email": "lfz@iswktkmc.com",
+      "name": "qbjgz",
+      "age": 79,
+      "website": " https://example.com",
+      "ip": "7.138.253.19",
+      "plan": "team",
+      "flags": {
+       "xo": false,
+       "z": true,
+       "wiqw": true
+      },
+      "prefs": {
+       "theme": "dark",
+       "retries": "5"
+      }
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "age": 79,
+       "email": "lfz@iswktkmc.com",
+       "flags": {
+        "wiqw": true,
+        "xo": false,
+        "z": true
+       },
+       "id": "1066f353-9858-3e79-a6d9-1f99e7f30e77",
+       "ip": "7.138.253.19",
+       "name": "qbjgz",
+       "plan": "team",
+       "prefs": {
+        "retries": 5,
+        "theme": "dark"
+       },
+       "website": " https://example.com"
+      }
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "age": 79,
+       "email": "lfz@iswktkmc.com",
+       "flags": {
+        "wiqw": true,
+        "xo": false,
+        "z": true
+       },
+       "id": "1066f353-9858-3e79-a6d9-1f99e7f30e77",
+       "ip": "7.138.253.19",
+       "name": "qbjgz",
+       "plan": "team",
+       "prefs": {
+        "retries": 5,
+        "theme": "dark"
+       },
+       "website": "https://example.com"
+      }
+     }
+    },
+    {
+     "input": {
+      "id": "f1a8542b-efd5-20e2-a925-f7ab31597906",
+      "email": "indehkjf@ci.io",
+      "name": "rn",
+      "age": 56,
+      "website": "https://example.com\n",
+      "ip": "255.62.114.166",
+      "plan": "team",
+      "flags": {
+       "ypnpae": true,
+       "rjly": true
+      },
+      "prefs": {
+       "theme": "dark",
+       "retries": "8"
+      }
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "age": 56,
+       "email": "indehkjf@ci.io",
+       "flags": {
+        "rjly": true,
+        "ypnpae": true
+       },
+       "id": "f1a8542b-efd5-20e2-a925-f7ab31597906",
+       "ip": "255.62.114.166",
+       "name": "rn",
+       "plan": "team",
+       "prefs": {
+        "retries": 8,
+        "theme": "dark"
+       },
+       "website": "https://example.com\n"
+      }
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "age": 56,
+       "email": "indehkjf@ci.io",
+       "flags": {
+        "rjly": true,
+        "ypnpae": true
+       },
+       "id": "f1a8542b-efd5-20e2-a925-f7ab31597906",
+       "ip": "255.62.114.166",
+       "name": "rn",
+       "plan": "team",
+       "prefs": {
+        "retries": 8,
+        "theme": "dark"
+       },
+       "website": "https://example.com"
+      }
+     }
+    },
+    {
+     "input": {
+      "id": "59d6a66b-8f7d-4c01-81f7-ed03473596b3",
+      "email": "oqf@nbn.io",
+      "name": "uaiafybwrk",
+      "age": 18,
+      "website": " https://example.com",
+      "ip": "63.174.80.3",
+      "plan": "team",
+      "flags": {},
+      "prefs": {
+       "retries": "3"
+      }
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "age": 18,
+       "email": "oqf@nbn.io",
+       "flags": {},
+       "id": "59d6a66b-8f7d-4c01-81f7-ed03473596b3",
+       "ip": "63.174.80.3",
+       "name": "uaiafybwrk",
+       "plan": "team",
+       "prefs": {
+        "retries": 3,
+        "theme": "light"
+       },
+       "website": " https://example.com"
+      }
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "age": 18,
+       "email": "oqf@nbn.io",
+       "flags": {},
+       "id": "59d6a66b-8f7d-4c01-81f7-ed03473596b3",
+       "ip": "63.174.80.3",
+       "name": "uaiafybwrk",
+       "plan": "team",
+       "prefs": {
+        "retries": 3,
+        "theme": "light"
+       },
+       "website": "https://example.com"
+      }
+     }
+    },
+    {
+     "input": {
+      "id": "149d0ffb-b63b-3801-b2bc-5b3f850abe25",
+      "email": "bajdktod@czgemkcz.io",
+      "name": "kmfv",
+      "age": 16,
+      "website": " https://example.com",
+      "ip": "215.225.2.68",
+      "plan": "pro",
+      "flags": {
+       "t": false,
+       "vmxbwd": true,
+       "ap": false
+      },
+      "prefs": {
+       "theme": "light",
+       "retries": "6"
+      }
+     },
+     "zod3": {
+      "ok": true,
+      "value": {
+       "age": 16,
+       "email": "bajdktod@czgemkcz.io",
+       "flags": {
+        "ap": false,
+        "t": false,
+        "vmxbwd": true
+       },
+       "id": "149d0ffb-b63b-3801-b2bc-5b3f850abe25",
+       "ip": "215.225.2.68",
+       "name": "kmfv",
+       "plan": "pro",
+       "prefs": {
+        "retries": 6,
+        "theme": "light"
+       },
+       "website": " https://example.com"
+      }
+     },
+     "now": {
+      "ok": true,
+      "value": {
+       "age": 16,
+       "email": "bajdktod@czgemkcz.io",
+       "flags": {
+        "ap": false,
+        "t": false,
+        "vmxbwd": true
+       },
+       "id": "149d0ffb-b63b-3801-b2bc-5b3f850abe25",
+       "ip": "215.225.2.68",
+       "name": "kmfv",
+       "plan": "pro",
+       "prefs": {
+        "retries": 6,
+        "theme": "light"
+       },
+       "website": "https://example.com"
+      }
+     }
+    }
+   ]
+  }
+ ]
+}
