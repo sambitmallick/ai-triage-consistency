@@ -90,4 +90,4 @@ reviewable function, not a mood.
 5. **Put the policy in code.** Then the disagreement is about a function you can read.
 
 ---
-🎬 Full walkthrough: **[DevOps Autopilot](https://www.youtube.com/@DevOpsAutopilot)**
+🎬 Full walkthrough: **[the video](https://youtu.be/CS0XoMWjtx8)** · channel: **[DevOps Autopilot](https://www.youtube.com/@DevOpsAutopilot)**
