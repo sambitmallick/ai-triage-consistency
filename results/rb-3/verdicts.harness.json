@@ -1,0 +1,127 @@
+{
+ "computed": {
+  "config: hosts was REJECTED, now ACCEPTED": "MATTERS",
+  "config: timeoutMs was ACCEPTED, now REJECTED": "NOISE",
+  "signup: ip was REJECTED, now ACCEPTED": "MATTERS",
+  "signup: age was ACCEPTED, now REJECTED": "SIGNED OFF",
+  "signup: rejected by both, but different fields reported": "NOISE",
+  "config: rejected by both, but different fields reported": "NOISE",
+  "signup: website accepted, but the PARSED VALUE changed": "MATTERS"
+ },
+ "claims": {
+  "config: hosts was REJECTED, now ACCEPTED": [
+   {
+    "claim": "A zoned non-link-local host is rejected by zod 3 and accepted by the merged build (verdict flip, looser).",
+    "verified": true,
+    "output": "oracle=false main=true"
+   },
+   {
+    "claim": "zod 3 only allowed a %zone on fe80:: addresses; the merged refine allows it on any IPv6. The signed-off fe80 address now shows no difference at all.",
+    "verified": true,
+    "output": "fe80=[true,true] global=[false,true]"
+   },
+   {
+    "claim": "The same flip happens when the zoned address is one element of a longer host list.",
+    "verified": true,
+    "output": "o=false m=true"
+   }
+  ],
+  "config: timeoutMs was ACCEPTED, now REJECTED": [
+   {
+    "claim": "timeoutMs=Infinity: zod 3 accepts and stores Infinity; the merged build rejects it on the timeoutMs field.",
+    "verified": true,
+    "output": "o_ok=true stored=Infinity m_ok=false m_problems=timeoutMs: Invalid input: expected number, received Infinity"
+   },
+   {
+    "claim": "NaN was already rejected by both versions, so the new rejection is specifically about non-finite (infinite) numbers; and Infinity is not expressible in JSON.",
+    "verified": true,
+    "output": "nan_o=false nan_m=false jsonInfinity=null"
+   }
+  ],
+  "signup: ip was REJECTED, now ACCEPTED": [
+   {
+    "claim": "A zoned non-link-local signup ip is rejected by zod 3 and accepted by the merged build.",
+    "verified": true,
+    "output": "o=false m=true"
+   },
+   {
+    "claim": "The signed-off fe80 case agrees in both versions, while non-link-local zoned addresses (including '::%1') are newly accepted - the widening is broader than what was signed off.",
+    "verified": true,
+    "output": "fe80=[true,true] zero=[false,true] global=[false,true]"
+   },
+   {
+    "claim": "Newly accepted zoned addresses are stored verbatim (the change is about the verdict, not the parsed value).",
+    "verified": true,
+    "output": "m_ok=true stored_same=true"
+   }
+  ],
+  "signup: age was ACCEPTED, now REJECTED": [
+   {
+    "claim": "Unsafe-integer ages (9007199254740994, 1e21, 1e30) are accepted by zod 3 and rejected by the merged build.",
+    "verified": true,
+    "output": "n9007199254740994=[true,false] e21=[true,false] e30=[true,false]"
+   },
+   {
+    "claim": "The new rejection is the safe-integer bound described in corpus-diffs.md section [2] (message names 9007199254740991).",
+    "verified": true,
+    "output": "msg=age: Too big: expected int to be <=9007199254740991"
+   },
+   {
+    "claim": "Real ages, and MAX_SAFE_INTEGER itself, are unaffected - only values past 2^53 changed answer.",
+    "verified": true,
+    "output": "age13=[true,true] max_safe=[true,true]"
+   }
+  ],
+  "signup: rejected by both, but different fields reported": [
+   {
+    "claim": "Cause (a): with a zoned non-fe80 ip plus a bad plan, zod 3 reports ip and plan while the merged build reports only plan.",
+    "verified": true,
+    "output": "o=ip,plan m=plan"
+   },
+   {
+    "claim": "Cause (b): with an unsafe-integer age plus a bad plan, the merged build adds age to the reported fields.",
+    "verified": true,
+    "output": "o=plan m=age,plan"
+   },
+   {
+    "claim": "Both versions still reject these inputs, so no verdict changes and no value is stored.",
+    "verified": true,
+    "output": "both1=true both2=true"
+   }
+  ],
+  "config: rejected by both, but different fields reported": [
+   {
+    "claim": "Field lists differ for an input both versions reject: zod 3 says hosts.0+port, the merged build says port+timeoutMs.",
+    "verified": true,
+    "output": "o=hosts.0,port m=port,timeoutMs"
+   },
+   {
+    "claim": "Both versions reject that input, so the verdict is unchanged.",
+    "verified": true,
+    "output": "both=true"
+   },
+   {
+    "claim": "The growing field lists in the examples come from timeoutMs=Infinity being newly reported alongside an unchanged bad host.",
+    "verified": true,
+    "output": "o=hosts.0 m=hosts.0,timeoutMs"
+   }
+  ],
+  "signup: website accepted, but the PARSED VALUE changed": [
+   {
+    "claim": "' https://example.com' is accepted by both, but zod 3 stores it verbatim while the merged build stores the trimmed URL.",
+    "verified": true,
+    "output": "o_ok=true m_ok=true same=false o_verbatim=true m_trimmed=true"
+   },
+   {
+    "claim": "A trailing newline is kept by zod 3 and stripped by the merged build, with both still accepting.",
+    "verified": true,
+    "output": "nl_o_ok=true nl_m_ok=true nl_o_has_newline=true nl_m_has_newline=false"
+   },
+   {
+    "claim": "The merged build only trims whitespace - scheme/host case and path are left alone, so this is trimming rather than URL normalization.",
+    "verified": true,
+    "output": "m_ok=true stored_is_trim_only=true"
+   }
+  ]
+ }
+}

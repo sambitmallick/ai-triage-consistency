@@ -1,0 +1,12 @@
+{
+ "computed": {
+  "config: hosts was REJECTED, now ACCEPTED": "MATTERS",
+  "config: timeoutMs was ACCEPTED, now REJECTED": "NOISE",
+  "signup: ip was REJECTED, now ACCEPTED": "MATTERS",
+  "signup: age was ACCEPTED, now REJECTED": "NOISE",
+  "signup: rejected by both, but different fields reported": "NOISE",
+  "config: rejected by both, but different fields reported": "NOISE",
+  "signup: website accepted, but the PARSED VALUE changed": "NOISE"
+ },
+ "claims": {}
+}

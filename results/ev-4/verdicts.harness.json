@@ -1,0 +1,132 @@
+{
+ "computed": {
+  "config: hosts was REJECTED, now ACCEPTED": "MATTERS",
+  "config: timeoutMs was ACCEPTED, now REJECTED": "NOISE",
+  "signup: ip was REJECTED, now ACCEPTED": "MATTERS",
+  "signup: age was ACCEPTED, now REJECTED": "NOISE",
+  "signup: rejected by both, but different fields reported": "NOISE",
+  "config: rejected by both, but different fields reported": "NOISE",
+  "signup: website accepted, but the PARSED VALUE changed": "NOISE"
+ },
+ "claims": {
+  "config: hosts was REJECTED, now ACCEPTED": [
+   {
+    "claim": "oracle.parseConfig rejects hosts=['2459::52d2%lo0'] while main.parseConfig accepts it.",
+    "verified": true,
+    "output": "P1 oracle.ok=false main.ok=true\nP1 oracle.problems=hosts.0: Invalid ip\nP1 main.hosts0=2459::52d2%lo0"
+   },
+   {
+    "claim": "zod 3's z.string().ip() accepts fe80::1%eth0 but rejects the zoned addresses 2459::52d2%lo0, dafa::c206%eth0 and ::%1.",
+    "verified": true,
+    "output": "P2 fe80::1%eth0=true 2459::52d2%lo0=false dafa::c206%eth0=false ::%1=false"
+   },
+   {
+    "claim": "main.parseConfig accepts all six zoned addresses tried (fe80::1%eth0, 2459::52d2%lo0, dafa::c206%eth0, ::%1, 2001:db8::ff00:42:8329%25, ::%zone%x) while zod 3's string().ip() accepts none of the five non-fe80 ones.",
+    "verified": true,
+    "output": "fe80::1%eth0 zod3=true main=true\n  2459::52d2%lo0 zod3=false main=true\n  dafa::c206%eth0 zod3=false main=true\n  ::%1 zod3=false main=true\n  2001:db8::ff00:42:8329%25 zod3=false main=true\n  ::%zone%x zod3=false main=true\nP3 main-accepts-all=true zod3-accepts-any-non-fe80=false"
+   },
+   {
+    "claim": "main.parseConfig still rejects an empty zone ('fe80::1%') and a zoned IPv4 ('1.2.3.4%eth0').",
+    "verified": true,
+    "output": "P4 fe80::1%=false 1.2.3.4%eth0=false"
+   }
+  ],
+  "config: timeoutMs was ACCEPTED, now REJECTED": [
+   {
+    "claim": "oracle.parseConfig accepts timeoutMs=Infinity and stores Infinity; main.parseConfig rejects the same input.",
+    "verified": true,
+    "output": "R1 oracle.ok=true stored=Infinity main.ok=false\nR1 main.problems=timeoutMs: Invalid input: expected number, received Infinity"
+   },
+   {
+    "claim": "zod 3's number().positive() accepts Infinity while zod 4's z.number() rejects it.",
+    "verified": true,
+    "output": "R2 zod3-positive-Infinity=true zod4-number-Infinity=false"
+   },
+   {
+    "claim": "Infinity is not representable in JSON: JSON.stringify(Infinity) is null and JSON.parse('Infinity') throws a SyntaxError.",
+    "verified": true,
+    "output": "R3 stringify-Infinity=null parse-Infinity=SyntaxError"
+   },
+   {
+    "claim": "Finite timeoutMs values are unchanged: 1e308 and 5000 are accepted by both builds and -1 is rejected by both.",
+    "verified": true,
+    "output": "R4 1e+308 o=true m=true | 5000 o=true m=true | -1 o=false m=false"
+   }
+  ],
+  "signup: ip was REJECTED, now ACCEPTED": [
+   {
+    "claim": "oracle.parseSignup rejects ip='dafa::c206%eth0' while main.parseSignup accepts it.",
+    "verified": true,
+    "output": "Q1 oracle.ok=false main.ok=true\nQ1 oracle.problems=ip: Invalid ip"
+   },
+   {
+    "claim": "Both builds accept ip='fe80::1%eth0', the address the earlier corpus review was about.",
+    "verified": true,
+    "output": "Q2 oracle.ok=true main.ok=true"
+   },
+   {
+    "claim": "For six zoned IPv6 addresses main.parseSignup accepts all of them, zod 4's z.ipv6() accepts none, and zod 3's string().ip() accepts none of the five non-fe80 ones.",
+    "verified": true,
+    "output": "fe80::1%eth0 zod3.ip=true zod4.ipv6=false main=true\n  2459::52d2%lo0 zod3.ip=false zod4.ipv6=false main=true\n  dafa::c206%eth0 zod3.ip=false zod4.ipv6=false main=true\n  ::%1 zod3.ip=false zod4.ipv6=false main=true\n  305b:7432:e22d:4c35:1962:71c6:ed4d:69ae%1 zod3.ip=false zod4.ipv6=false main=true\n  "
+   }
+  ],
+  "signup: age was ACCEPTED, now REJECTED": [
+   {
+    "claim": "oracle.parseSignup accepts age=1e21 and age=9007199254740994; main.parseSignup rejects both.",
+    "verified": true,
+    "output": "S1 1e+21 o=true m=false | 9007199254740994 o=true m=false"
+   },
+   {
+    "claim": "main.parseSignup's problem for age=1e21 is 'age: Too big: expected int to be <=9007199254740991'.",
+    "verified": true,
+    "output": "S2 age: Too big: expected int to be <=9007199254740991"
+   },
+   {
+    "claim": "Ages 30, 13 and 9007199254740991 are accepted by both builds and 12 is rejected by both.",
+    "verified": true,
+    "output": "S3 30 o=true m=true | 13 o=true m=true | 9007199254740991 o=true m=true | 12 o=false m=false"
+   }
+  ],
+  "signup: rejected by both, but different fields reported": [
+   {
+    "claim": "Over 4000 generated signups rejected by both builds, field-set differences do occur and the symmetric difference of the reported fields only ever contains 'age' and 'ip'.",
+    "verified": true,
+    "output": "T1 both-reject=3952 fieldset-diffs=2516\nT1 had-diffs=true symdiff-fields=[age,ip]"
+   },
+   {
+    "claim": "The two drivers are directional: oracle rejects ip='dafa::c206%eth0' where main accepts, and main rejects age=1e21 where oracle accepts.",
+    "verified": true,
+    "output": "T2 ip-only oracle=false main=true | age-only oracle=true main=false"
+   }
+  ],
+  "config: rejected by both, but different fields reported": [
+   {
+    "claim": "Over 3000 generated configs rejected by both builds, field-set differences occur and the symmetric difference only ever contains hosts entries (shown as hosts*) and timeoutMs.",
+    "verified": true,
+    "output": "U1 both-reject=2480 fieldset-diffs=1070\nU1 had-diffs=true symdiff-fields=[hosts*,timeoutMs]"
+   },
+   {
+    "claim": "oracle.parseConfig rejects hosts=['dafa::c206%eth0'] where main accepts, and main rejects timeoutMs=Infinity where oracle accepts.",
+    "verified": true,
+    "output": "U2 hosts oracle=false main=true | timeout oracle=true main=false"
+   }
+  ],
+  "signup: website accepted, but the PARSED VALUE changed": [
+   {
+    "claim": "Both builds accept website=' https://example.com'; oracle stores it with the leading space, main stores 'https://example.com'.",
+    "verified": true,
+    "output": "V1 o.ok=true m.ok=true in=[ https://example.com] oracle=[ https://example.com] main=[https://example.com]"
+   },
+   {
+    "claim": "For ten URLs with no surrounding whitespace, oracle and main store identical strings (10 identical, 0 changed).",
+    "verified": true,
+    "output": "V2 n=10 identical=10 changed=0"
+   },
+   {
+    "claim": "For both whitespace cases (leading space and trailing newline) the oracle stores the input unchanged and main stores exactly input.trim().",
+    "verified": true,
+    "output": "case len=20 o.ok=true m.ok=true oracle-unchanged=true main-is-trimmed=true\n  case len=20 o.ok=true m.ok=true oracle-unchanged=true main-is-trimmed=true\nV3 all-cases-oracle-raw-main-trimmed=true"
+   }
+  ]
+ }
+}

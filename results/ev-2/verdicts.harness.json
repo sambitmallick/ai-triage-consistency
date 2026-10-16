@@ -1,0 +1,132 @@
+{
+ "computed": {
+  "config: hosts was REJECTED, now ACCEPTED": "MATTERS",
+  "config: timeoutMs was ACCEPTED, now REJECTED": "NOISE",
+  "signup: ip was REJECTED, now ACCEPTED": "MATTERS",
+  "signup: age was ACCEPTED, now REJECTED": "NOISE",
+  "signup: rejected by both, but different fields reported": "NOISE",
+  "config: rejected by both, but different fields reported": "NOISE",
+  "signup: website accepted, but the PARSED VALUE changed": "NOISE"
+ },
+ "claims": {
+  "config: hosts was REJECTED, now ACCEPTED": [
+   {
+    "claim": "For hosts entries, the merged build accepts zoned IPv6 addresses that zod 3 rejected (2459::52d2%lo0, ::%1, 2001:db8::ff00:42:8329%25, a644::8654%eth0, 5ac3::de2a%wlan0).",
+    "verified": true,
+    "output": "HOST 2459::52d2%lo0 oracle_ok=false main_ok=true\nHOST ::%1 oracle_ok=false main_ok=true\nHOST 2001:db8::ff00:42:8329%25 oracle_ok=false main_ok=true\nHOST a644::8654%eth0 oracle_ok=false main_ok=true\nHOST 5ac3::de2a%wlan0 oracle_ok=false main_ok=true\nWIDENED_ALL=true"
+   },
+   {
+    "claim": "zod 3 accepted a %zone suffix only on lowercase fe80: addresses: fe80::1%eth0 and fe80::abcd%wlan0 passed, while fe81::1%eth0, 2459::52d2%lo0 and ::%1 were rejected.",
+    "verified": true,
+    "output": "Z3 fe80::1%eth0 oracle_ok=true expected=true main_ok=true\nZ3 fe80::abcd%wlan0 oracle_ok=true expected=true main_ok=true\nZ3 fe81::1%eth0 oracle_ok=false expected=false main_ok=true\nZ3 2459::52d2%lo0 oracle_ok=false expected=false main_ok=true\nZ3 ::%1 oracle_ok=false expected=false main_ok=true\nZOD3_Z"
+   },
+   {
+    "claim": "The merged build accepts a zone suffix on all of those addresses, including the non-fe80 ones zod 3 refused.",
+    "verified": true,
+    "output": "Z3 fe80::1%eth0 oracle_ok=true expected=true main_ok=true\nZ3 fe80::abcd%wlan0 oracle_ok=true expected=true main_ok=true\nZ3 fe81::1%eth0 oracle_ok=false expected=false main_ok=true\nZ3 2459::52d2%lo0 oracle_ok=false expected=false main_ok=true\nZ3 ::%1 oracle_ok=false expected=false main_ok=true\nZOD3_Z"
+   }
+  ],
+  "config: timeoutMs was ACCEPTED, now REJECTED": [
+   {
+    "claim": "zod 3 accepted timeoutMs = Infinity and stored Infinity; the merged build rejects it with 'expected number, received Infinity'.",
+    "verified": true,
+    "output": "TMO oracle_ok=true oracle_stored=Infinity\nTMO main_ok=false main_problems=timeoutMs: Invalid input: expected number, received Infinity\nINFINITY_WAS_ACCEPTED_NOW_REJECTED=true"
+   },
+   {
+    "claim": "The value zod 3 stored does not survive JSON serialisation: JSON.stringify({timeoutMs:Infinity}) yields null in place of the number.",
+    "verified": true,
+    "output": "STRINGIFY={\"timeoutMs\":null}\nSERIALIZES_TO_NULL=true"
+   },
+   {
+    "claim": "Infinity is not a JSON token (JSON.parse of it throws) and only reaches a parser from a numeric overflow literal such as 1e999, which parses to Infinity.",
+    "verified": true,
+    "output": "JSON_TOKEN=throws JSON_OVERFLOW=Infinity"
+   },
+   {
+    "claim": "A finite timeoutMs is accepted by both builds and stores 5000 in both.",
+    "verified": true,
+    "output": "FIN oracle=5000 main=5000\nDEF oracle=5000 main=5000"
+   },
+   {
+    "claim": "With timeoutMs omitted, both builds fill in the default 5000.",
+    "verified": true,
+    "output": "DEF oracle=5000 main=5000"
+   }
+  ],
+  "signup: ip was REJECTED, now ACCEPTED": [
+   {
+    "claim": "The merged build accepts signup ip values that zod 3 rejected (305b:7432:e22d:4c35:1962:71c6:ed4d:69ae%1, 3d62::9037%1, 2001:db8::ff00:42:8329%25, ::%1, e575::ec0a%en0).",
+    "verified": true,
+    "output": "IP 305b:7432:e22d:4c35:1962:71c6:ed4d:69ae%1 oracle_ok=false main_ok=true\nIP 3d62::9037%1 oracle_ok=false main_ok=true\nIP 2001:db8::ff00:42:8329%25 oracle_ok=false main_ok=true\nIP ::%1 oracle_ok=false main_ok=true\nIP e575::ec0a%en0 oracle_ok=false main_ok=true\nIP_WIDENED_ALL=true"
+   },
+   {
+    "claim": "On the ip field zod 3 accepted a zone suffix only on lowercase fe80: addresses (fe80::1%eth0, fe80::abcd%wlan0 passed; FE80::1%eth0, fe81::1%eth0, 3d62::9037%1, ::%1 were rejected), while the merged build accepts all of them.",
+    "verified": true,
+    "output": "Z3IP fe80::1%eth0 oracle_ok=true expected=true main_ok=true\nZ3IP fe80::abcd%wlan0 oracle_ok=true expected=true main_ok=true\nZ3IP FE80::1%eth0 oracle_ok=false expected=false main_ok=true\nZ3IP fe81::1%eth0 oracle_ok=false expected=false main_ok=true\nZ3IP 3d62::9037%1 oracle_ok=false expected=false mai"
+   },
+   {
+    "claim": "The zone branch still rejects an empty zone (fe80::1%), an IPv4 left part (1.2.3.4%eth0), junk (zzz%eth0) and a missing address (%eth0) in both builds.",
+    "verified": true,
+    "output": "BAD fe80::1% oracle_ok=false main_ok=false\nBAD 1.2.3.4%eth0 oracle_ok=false main_ok=false\nBAD zzz%eth0 oracle_ok=false main_ok=false\nBAD %eth0 oracle_ok=false main_ok=false\nGUARDS_HELD=true"
+   }
+  ],
+  "signup: age was ACCEPTED, now REJECTED": [
+   {
+    "claim": "zod 3 accepted age values past the safe-integer range (1e+21, 9007199254740994, 1e+30) and the merged build rejects them with 'Too big: expected int to be <=9007199254740991'.",
+    "verified": true,
+    "output": "AGE 1e+21 oracle_ok=true main=age: Too big: expected int to be <=9007199254740991\nAGE 9007199254740994 oracle_ok=true main=age: Too big: expected int to be <=9007199254740991\nAGE 1e+30 oracle_ok=true main=age: Too big: expected int to be <=9007199254740991\nBIG_NOW_REJECTED=true"
+   },
+   {
+    "claim": "Integers above 2^53 are not distinctly representable as doubles: 9007199254740993 === 9007199254740992 is true.",
+    "verified": true,
+    "output": "REPR 9007199254740993===9007199254740992 -> true"
+   },
+   {
+    "claim": "Ages inside the safe-integer range (13, 130, 9007199254740991) are accepted by both builds.",
+    "verified": true,
+    "output": "AGE 13 oracle_ok=true main_ok=true\nAGE 130 oracle_ok=true main_ok=true\nAGE 9007199254740991 oracle_ok=true main_ok=true\nSAFE_SAME=true"
+   }
+  ],
+  "signup: rejected by both, but different fields reported": [
+   {
+    "claim": "A signup with a bad id, bad email, bad plan and ip=3d62::9037%1 is rejected by both builds; zod 3 reports [email,id,ip,plan] and the merged build reports [email,id,plan].",
+    "verified": true,
+    "output": "S88-ip oracle=[email,id,ip,plan] main=[email,id,plan] both_reject=true"
+   },
+   {
+    "claim": "A signup with a bad email and age=1e+21 is rejected by both builds; zod 3 reports [email] and the merged build reports [age,email].",
+    "verified": true,
+    "output": "S88-age oracle=[email] main=[age,email] both_reject=true"
+   }
+  ],
+  "config: rejected by both, but different fields reported": [
+   {
+    "claim": "hosts=['2459::52d2%lo0','zzz'] is rejected by both builds; zod 3 reports [hosts.0,hosts.1] and the merged build reports [hosts.1].",
+    "verified": true,
+    "output": "C47-hosts oracle=[hosts.0,hosts.1] main=[hosts.1] both_reject=true"
+   },
+   {
+    "claim": "hosts=['zzz'] with timeoutMs=Infinity is rejected by both builds; zod 3 reports [hosts.0] and the merged build reports [hosts.0,timeoutMs].",
+    "verified": true,
+    "output": "C47-tmo oracle=[hosts.0] main=[hosts.0,timeoutMs] both_reject=true"
+   }
+  ],
+  "signup: website accepted, but the PARSED VALUE changed": [
+   {
+    "claim": "For website ' https://example.com' and 'https://example.com' plus a trailing newline, both builds accept, zod 3 stores the input verbatim and the merged build stores the whitespace-trimmed string.",
+    "verified": true,
+    "output": "WEB \" https://example.com\" oracle=\" https://example.com\" main=\"https://example.com\"\nWEB \"https://example.com\\n\" oracle=\"https://example.com\\n\" main=\"https://example.com\"\nTRIMMED_ONLY=true"
+   },
+   {
+    "claim": "In the merged build ' https://example.com' and 'https://example.com' are stored as the same string.",
+    "verified": true,
+    "output": "A=\"https://example.com\" B=\"https://example.com\"\nNORMALIZED_EQUAL=true"
+   },
+   {
+    "claim": "URLs without surrounding whitespace are stored unchanged by both builds, including mixed-case host, trailing slash and query string ('https://EXAMPLE.com/A?x=1', 'https://example.com/', 'https://example.com/a?x=1', 'https://example.com').",
+    "verified": true,
+    "output": "KEEP \"https://EXAMPLE.com/A?x=1\" oracle=\"https://EXAMPLE.com/A?x=1\" main=\"https://EXAMPLE.com/A?x=1\"\nKEEP \"https://example.com/\" oracle=\"https://example.com/\" main=\"https://example.com/\"\nKEEP \"https://example.com/a?x=1\" oracle=\"https://example.com/a?x=1\" main=\"https://example.com/a?x=1\"\nKEEP \"https:"
+   }
+  ]
+ }
+}

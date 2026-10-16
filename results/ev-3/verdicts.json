@@ -1,0 +1,158 @@
+{
+  "groups": [
+    {
+      "heading": "config: hosts was REJECTED, now ACCEPTED",
+      "verdict": "MATTERS",
+      "why": "The zone-index compatibility shim lets in more than zod 3 ever did. zod 3's z.string().ip() accepted the zoned address fe80::1%eth0 but rejected 2459::52d2%lo0, 2001:db8::ff00:42:8329%wlan0 and ::%1. The merged build accepts hosts ['2459::52d2%lo0'], which the zod 3 oracle rejects at hosts.0. The merged build also accepts zone text containing a space, shell metacharacters or path traversal: of the three hosts entries ::1%a b, ::1%$(reboot) and 2001:db8::1%../../etc/passwd, main.parseConfig accepts 3 of 3 while the oracle accepts 0 of 3. Judgement: this is a genuine widening of accepted input rather than a restoration, and it contradicts the premise the earlier sign-off rested on (review/corpus-diffs.md argues the union 'reproduces exactly the set zod 3 matched' so 'nothing new is let in'). Judgement: host strings are the ones most likely to be handed to connect/DNS/shell-adjacent code, so an unconstrained zone suffix is the risky end of the widening; a human should narrow zonedIpv6 (keep zod 3's link-local-with-zone grammar and restrict the zone character set) before this ships.",
+      "claims": [
+        {
+          "claim": "zod 3's z.string().ip() accepted fe80::1%eth0 but rejected 2459::52d2%lo0, 2001:db8::ff00:42:8329%wlan0 and ::%1.",
+          "probe": "const z3 = zod3.string ? zod3 : zod3.z;\nconst ip3 = z3.string().ip();\nconst cases=[\"fe80::1%eth0\",\"2459::52d2%lo0\",\"2001:db8::ff00:42:8329%wlan0\",\"::%1\"];\nprint(cases.map(c=>c+\"=\"+ip3.safeParse(c).success).join(\" \"));",
+          "expect": "fe80::1%eth0=true 2459::52d2%lo0=false 2001:db8::ff00:42:8329%wlan0=false ::%1=false"
+        },
+        {
+          "claim": "main.parseConfig accepts hosts ['2459::52d2%lo0'] while the zod 3 oracle rejects it at hosts.0.",
+          "probe": "const cfg={hosts:[\"2459::52d2%lo0\"]};\nconst f=(r)=>r.ok?\"accept\":r.problems.map(p=>p.split(\":\")[0]).sort().join(\",\");\nprint(\"oracle=\"+f(oracle.parseConfig(cfg))+\" main=\"+f(main.parseConfig(cfg)));",
+          "expect": "oracle=hosts.0 main=accept"
+        },
+        {
+          "claim": "main.parseConfig accepts all three of ::1%a b, ::1%$(reboot) and 2001:db8::1%../../etc/passwd as hosts entries; the zod 3 oracle accepts none of them.",
+          "probe": "const hosts=[\"::1%a b\",\"::1%$(reboot)\",\"2001:db8::1%../../etc/passwd\"];\nlet oa=0, ma=0;\nfor (const h of hosts) {\n  if (oracle.parseConfig({hosts:[h]}).ok) oa++;\n  if (main.parseConfig({hosts:[h]}).ok) ma++;\n}\nprint(\"junkZones n=\"+hosts.length+\" oracleAccepted=\"+oa+\" mainAccepted=\"+ma);",
+          "expect": "junkZones n=3 oracleAccepted=0 mainAccepted=3"
+        }
+      ]
+    },
+    {
+      "heading": "config: timeoutMs was ACCEPTED, now REJECTED",
+      "verdict": "NOISE",
+      "why": "The zod 3 oracle accepts timeoutMs: Infinity and stores Infinity; the merged build rejects it with 'timeoutMs: Invalid input: expected number, received Infinity'. Infinity cannot reach the parser through a JSON request body: JSON.stringify of an Infinity field nulls it, JSON.parse of a body containing a bare Infinity throws a SyntaxError, and Number('1e999') is Infinity, so only in-process construction can produce it. Finite values are unaffected: main.parseConfig still accepts timeoutMs 1e+308. Judgement: an infinite timeout was never a usable configuration, so rejecting it at the boundary is at worst equivalent and arguably safer, and the 463 occurrences are the fuzzer injecting a value the wire format cannot carry - no action needed. Judgement: worth at most a one-line note to the reviewer, since this tightening is not mentioned in the earlier sign-off (the 400-request corpus contained no Infinity).",
+      "claims": [
+        {
+          "claim": "The zod 3 oracle accepts timeoutMs: Infinity and stores Infinity, while main rejects it with 'timeoutMs: Invalid input: expected number, received Infinity'.",
+          "probe": "const cfg={hosts:[\"1.2.3.4\"],timeoutMs:Infinity};\nconst o=oracle.parseConfig(cfg), m=main.parseConfig(cfg);\nprint(\"oracle_ok=\"+o.ok+\" storedInfinity=\"+(o.ok && o.value.timeoutMs===Infinity)+\" main_ok=\"+m.ok+\" main=\"+(m.ok?\"\":m.problems.join(\";\")));",
+          "expect": "oracle_ok=true storedInfinity=true main_ok=false main=timeoutMs: Invalid input: expected number, received Infinity"
+        },
+        {
+          "claim": "JSON cannot carry Infinity: JSON.stringify nulls an Infinity field, JSON.parse of a body with a bare Infinity throws SyntaxError, and Number('1e999') is Infinity.",
+          "probe": "let t=\"no-throw\";\ntry { JSON.parse('{\"t\":Infinity}'); } catch (e) { t=e.constructor.name; }\nprint(\"stringify=\"+JSON.stringify({t:Infinity})+\" parse=\"+t+\" numStr=\"+Number(\"1e999\"));",
+          "expect": "parse=SyntaxError numStr=Infinity"
+        },
+        {
+          "claim": "main.parseConfig still accepts a finite large timeoutMs of 1e+308.",
+          "probe": "const m=main.parseConfig({hosts:[\"1.2.3.4\"],timeoutMs:1e308});\nprint(\"main_ok=\"+m.ok+\" timeoutMs=\"+(m.ok?m.value.timeoutMs:\"-\"));",
+          "expect": "main_ok=true timeoutMs=1e+308"
+        }
+      ]
+    },
+    {
+      "heading": "signup: ip was REJECTED, now ACCEPTED",
+      "verdict": "MATTERS",
+      "why": "Same root cause as the hosts group, on the signup path. The zod 3 oracle rejects ip 3d62::9037%1 and ip ::%1 and the merged build accepts both. zod 3's z.string().ip() accepted fe80::1%eth0 but rejected 2459::52d2%lo0, 2001:db8::ff00:42:8329%wlan0 and ::%1, so these are inputs zod 3 never matched. main.parseSignup also accepts all three of ::1%a b, ::1%$(reboot) and 2001:db8::1%../../etc/passwd as ip, and the oracle accepts none of them. The intended compatibility case still works in both builds: ip fe80::1%eth0 is accepted by the oracle and by main. Judgement: the shim should have been as narrow as zod 3's grammar; as written it stores arbitrary caller-chosen text after the '%' in the ip field, so a human must tighten zonedIpv6 (address range plus a zone character class) before shipping, and the sign-off line 'KEEP OLD on ip (zoned IPv6) - agreed' should be re-checked because the restored set is strictly larger than the old one.",
+      "claims": [
+        {
+          "claim": "The zod 3 oracle rejects signup ip 3d62::9037%1 and ip ::%1; main accepts both.",
+          "probe": "const SIG=(e)=>Object.assign({id:\"123e4567-e89b-12d3-a456-426614174000\",email:\"a@b.co\",name:\"n\",ip:\"::1\",plan:\"free\",flags:{}},e);\nconst ips=[\"3d62::9037%1\",\"::%1\"];\nprint(ips.map(ip=>ip+\" oracle=\"+(oracle.parseSignup(SIG({ip})).ok?\"accept\":\"reject\")+\"/main=\"+(main.parseSignup(SIG({ip})).ok?\"accept\":\"reject\")).join(\" | \"));",
+          "expect": "3d62::9037%1 oracle=reject/main=accept | ::%1 oracle=reject/main=accept"
+        },
+        {
+          "claim": "zod 3's z.string().ip() accepted fe80::1%eth0 but rejected 2459::52d2%lo0, 2001:db8::ff00:42:8329%wlan0 and ::%1.",
+          "probe": "const z3 = zod3.string ? zod3 : zod3.z;\nconst ip3 = z3.string().ip();\nconst cases=[\"fe80::1%eth0\",\"2459::52d2%lo0\",\"2001:db8::ff00:42:8329%wlan0\",\"::%1\"];\nprint(cases.map(c=>c+\"=\"+ip3.safeParse(c).success).join(\" \"));",
+          "expect": "fe80::1%eth0=true 2459::52d2%lo0=false 2001:db8::ff00:42:8329%wlan0=false ::%1=false"
+        },
+        {
+          "claim": "main.parseSignup accepts ip values ::1%a b, ::1%$(reboot) and 2001:db8::1%../../etc/passwd (3 of 3); the zod 3 oracle accepts none of them.",
+          "probe": "const SIG=(e)=>Object.assign({id:\"123e4567-e89b-12d3-a456-426614174000\",email:\"a@b.co\",name:\"n\",ip:\"::1\",plan:\"free\",flags:{}},e);\nconst ips=[\"::1%a b\",\"::1%$(reboot)\",\"2001:db8::1%../../etc/passwd\"];\nlet oa=0, ma=0;\nfor (const ip of ips) {\n  if (oracle.parseSignup(SIG({ip})).ok) oa++;\n  if (main.parseSignup(SIG({ip})).ok) ma++;\n}\nprint(\"junkZones n=\"+ips.length+\" oracleAccepted=\"+oa+\" mainAccepted=\"+ma);",
+          "expect": "junkZones n=3 oracleAccepted=0 mainAccepted=3"
+        },
+        {
+          "claim": "ip fe80::1%eth0 is accepted by both the zod 3 oracle and main.",
+          "probe": "const SIG=(e)=>Object.assign({id:\"123e4567-e89b-12d3-a456-426614174000\",email:\"a@b.co\",name:\"n\",ip:\"::1\",plan:\"free\",flags:{}},e);\nconst s=SIG({ip:\"fe80::1%eth0\"});\nprint(\"fe80::1%eth0 oracle=\"+(oracle.parseSignup(s).ok?\"accept\":\"reject\")+\" main=\"+(main.parseSignup(s).ok?\"accept\":\"reject\"));",
+          "expect": "fe80::1%eth0 oracle=accept main=accept"
+        }
+      ]
+    },
+    {
+      "heading": "signup: age was ACCEPTED, now REJECTED",
+      "verdict": "NOISE",
+      "why": "The zod 3 oracle accepts age 1e+21 while main rejects it with 'age: Too big: expected int to be <=9007199254740991'. Above 2^53 the float grid is coarser than 1, so these values are not faithfully representable: 9007199254740993 === 9007199254740992 evaluates to true. Ordinary ages are untouched: main.parseSignup accepts age 42. Judgement: this is exactly the tightening the earlier review recorded as ACCEPT NEW for age and signed off (read in review/corpus-diffs.md, not probe-backed), the examples are all overflow probes rather than ages, and nothing a real signup form sends changes - so no action is needed before shipping; the suggested .max(130) follow-up stays a separate, intentional change.",
+      "claims": [
+        {
+          "claim": "The zod 3 oracle accepts age 1e+21; main rejects it with 'age: Too big: expected int to be <=9007199254740991'.",
+          "probe": "const SIG=(e)=>Object.assign({id:\"123e4567-e89b-12d3-a456-426614174000\",email:\"a@b.co\",name:\"n\",ip:\"::1\",plan:\"free\",flags:{}},e);\nconst s=SIG({age:1e21});\nconst o=oracle.parseSignup(s), m=main.parseSignup(s);\nprint(\"oracle_ok=\"+o.ok+\" main_ok=\"+m.ok+\" main=\"+(m.ok?\"\":m.problems.join(\";\")));",
+          "expect": "oracle_ok=true main_ok=false main=age: Too big: expected int to be <=9007199254740991"
+        },
+        {
+          "claim": "Integers above 2^53 are not distinctly representable: 9007199254740993 === 9007199254740992 is true.",
+          "probe": "print(\"repr=\"+(9007199254740993===9007199254740992));",
+          "expect": "repr=true"
+        },
+        {
+          "claim": "main.parseSignup still accepts a normal age of 42.",
+          "probe": "const SIG=(e)=>Object.assign({id:\"123e4567-e89b-12d3-a456-426614174000\",email:\"a@b.co\",name:\"n\",ip:\"::1\",plan:\"free\",flags:{}},e);\nconst m=main.parseSignup(SIG({age:42}));\nprint(\"age42 main_ok=\"+m.ok+\" age=\"+(m.ok?m.value.age:\"-\"));",
+          "expect": "age42 main_ok=true age=42"
+        }
+      ]
+    },
+    {
+      "heading": "signup: rejected by both, but different fields reported",
+      "verdict": "NOISE",
+      "why": "These rows are downstream symptoms of two differences already triaged elsewhere, and the verdict itself never changes. With a bad email, plan 'gold' and the zoned ip 3d62::9037%1, the oracle reports fields email,ip,plan and main reports email,plan (ip disappears because main now accepts that address). With a bad email, plan 'gold' and age 1e+21, the oracle reports email,plan and main reports age,email,plan. In both of those inputs all four parses return ok=false. Judgement: no separate action for this group - the ip component is the actionable finding already filed under 'signup: ip was REJECTED, now ACCEPTED' and the age component is the signed-off ACCEPT NEW; a request rejected before is still rejected, only the issue list differs, and the corpus comparison deliberately does not compare message text.",
+      "claims": [
+        {
+          "claim": "For a signup with bad email, plan 'gold' and ip 3d62::9037%1 the oracle reports fields email,ip,plan while main reports email,plan.",
+          "probe": "const SIG=(e)=>Object.assign({id:\"123e4567-e89b-12d3-a456-426614174000\",email:\"a@b.co\",name:\"n\",ip:\"::1\",plan:\"free\",flags:{}},e);\nconst bad=SIG({email:\"nope\",plan:\"gold\",ip:\"3d62::9037%1\"});\nconst f=(r)=>r.ok?\"accept\":r.problems.map(p=>p.split(\":\")[0]).sort().join(\",\");\nprint(\"oracle=\"+f(oracle.parseSignup(bad))+\" main=\"+f(main.parseSignup(bad)));",
+          "expect": "oracle=email,ip,plan main=email,plan"
+        },
+        {
+          "claim": "For a signup with bad email, plan 'gold' and age 1e+21 the oracle reports fields email,plan while main reports age,email,plan.",
+          "probe": "const SIG=(e)=>Object.assign({id:\"123e4567-e89b-12d3-a456-426614174000\",email:\"a@b.co\",name:\"n\",ip:\"::1\",plan:\"free\",flags:{}},e);\nconst bad=SIG({email:\"nope\",plan:\"gold\",age:1e21});\nconst f=(r)=>r.ok?\"accept\":r.problems.map(p=>p.split(\":\")[0]).sort().join(\",\");\nprint(\"oracle=\"+f(oracle.parseSignup(bad))+\" main=\"+f(main.parseSignup(bad)));",
+          "expect": "oracle=email,plan main=age,email,plan"
+        },
+        {
+          "claim": "Both of those signups are rejected by both builds (all four parses return ok=false).",
+          "probe": "const SIG=(e)=>Object.assign({id:\"123e4567-e89b-12d3-a456-426614174000\",email:\"a@b.co\",name:\"n\",ip:\"::1\",plan:\"free\",flags:{}},e);\nconst a=SIG({email:\"nope\",plan:\"gold\",ip:\"3d62::9037%1\"});\nconst b=SIG({email:\"nope\",plan:\"gold\",age:1e21});\nconst r=[oracle.parseSignup(a),main.parseSignup(a),oracle.parseSignup(b),main.parseSignup(b)];\nprint(\"allRejected=\"+r.every(x=>x.ok===false));",
+          "expect": "allRejected=true"
+        }
+      ]
+    },
+    {
+      "heading": "config: rejected by both, but different fields reported",
+      "verdict": "NOISE",
+      "why": "Same situation on the config path: the field lists differ only because of the zoned-host widening and the Infinity tightening, and the answer stays 'reject'. For hosts ['2459::52d2%lo0','nope'] the oracle reports hosts.0,hosts.1 and main reports only hosts.1. For hosts ['nope'] with timeoutMs Infinity the oracle reports hosts.0 and main reports hosts.0,timeoutMs. All four of those parses return ok=false. Judgement: nothing to do for this group on its own - the hosts half is the actionable item already filed under 'config: hosts was REJECTED, now ACCEPTED' and the timeoutMs half is the harmless Infinity rejection.",
+      "claims": [
+        {
+          "claim": "For hosts ['2459::52d2%lo0','nope'] the oracle reports hosts.0,hosts.1 while main reports only hosts.1.",
+          "probe": "const cfg={hosts:[\"2459::52d2%lo0\",\"nope\"]};\nconst f=(r)=>r.ok?\"accept\":r.problems.map(p=>p.split(\":\")[0]).sort().join(\",\");\nprint(\"oracle=\"+f(oracle.parseConfig(cfg))+\" main=\"+f(main.parseConfig(cfg)));",
+          "expect": "oracle=hosts.0,hosts.1 main=hosts.1"
+        },
+        {
+          "claim": "For hosts ['nope'] with timeoutMs Infinity the oracle reports hosts.0 while main reports hosts.0,timeoutMs.",
+          "probe": "const cfg={hosts:[\"nope\"],timeoutMs:Infinity};\nconst f=(r)=>r.ok?\"accept\":r.problems.map(p=>p.split(\":\")[0]).sort().join(\",\");\nprint(\"oracle=\"+f(oracle.parseConfig(cfg))+\" main=\"+f(main.parseConfig(cfg)));",
+          "expect": "oracle=hosts.0 main=hosts.0,timeoutMs"
+        },
+        {
+          "claim": "Both of those configs are rejected by both builds (all four parses return ok=false).",
+          "probe": "const a={hosts:[\"2459::52d2%lo0\",\"nope\"]};\nconst b={hosts:[\"nope\"],timeoutMs:Infinity};\nconst r=[oracle.parseConfig(a),main.parseConfig(a),oracle.parseConfig(b),main.parseConfig(b)];\nprint(\"allRejected=\"+r.every(x=>x.ok===false));",
+          "expect": "allRejected=true"
+        }
+      ]
+    },
+    {
+      "heading": "signup: website accepted, but the PARSED VALUE changed",
+      "verdict": "NOISE",
+      "why": "The change is surrounding-whitespace stripping only. For the two fuzzer inputs (a leading-space URL and one with a trailing newline) both builds accept, the oracle stores the input unchanged and main stores input.trim(). Across the four URLs tested main accepted all of them and every stored value equalled input.trim(), including 'https://Example.COM/A?b=1 ' which main stores as 'https://Example.COM/A?b=1' - host case, path and query are left alone and 'https://example.com/a/../b' is not re-normalised. Judgement: a trimmed URL is equivalent to the submitted one for anything that fetches or displays it, and the trim only removes characters that were never meaningful, so no action is needed. Judgement: it is still a silent output-value change the earlier sign-off does not mention, so it deserves a line in the PR description in case downstream code compares the stored website against the raw submitted string.",
+      "claims": [
+        {
+          "claim": "For website ' https://example.com' and 'https://example.com' with a trailing newline both builds accept; the oracle's stored value equals the input and main's stored value equals input.trim().",
+          "probe": "const SIG=(e)=>Object.assign({id:\"123e4567-e89b-12d3-a456-426614174000\",email:\"a@b.co\",name:\"n\",ip:\"::1\",plan:\"free\",flags:{}},e);\nconst ins=[\" https://example.com\",\"https://example.com\\n\"];\nlet bothAccept=true, oracleSame=true, mainTrim=true;\nfor (const w of ins) {\n  const o=oracle.parseSignup(SIG({website:w})), m=main.parseSignup(SIG({website:w}));\n  if (!(o.ok && m.ok)) { bothAccept=false; continue; }\n  if (o.value.website!==w) oracleSame=false;\n  if (m.value.website!==w.trim()) mainTrim=false;\n}\nprint(\"n=\"+ins.length+\" bothAccept=\"+bothAccept+\" oracleEqualsInput=\"+oracleSame+\" mainEqualsTrim=\"+mainTrim);",
+          "expect": "n=2 bothAccept=true oracleEqualsInput=true mainEqualsTrim=true"
+        },
+        {
+          "claim": "For the four tested URLs main accepts all of them and every stored value equals input.trim(), with 'https://Example.COM/A?b=1 ' stored as 'https://Example.COM/A?b=1'.",
+          "probe": "const SIG=(e)=>Object.assign({id:\"123e4567-e89b-12d3-a456-426614174000\",email:\"a@b.co\",name:\"n\",ip:\"::1\",plan:\"free\",flags:{}},e);\nconst ins=[\" https://example.com\",\"https://example.com\\n\",\"https://Example.COM/A?b=1 \",\"https://example.com/a/../b\"];\nlet allAccepted=true, allTrim=true, host=\"-\";\nfor (const w of ins) {\n  const m=main.parseSignup(SIG({website:w}));\n  if (!m.ok) { allAccepted=false; continue; }\n  if (m.value.website!==w.trim()) allTrim=false;\n  if (w.indexOf(\"Example.COM\")>=0) host=m.value.website;\n}\nprint(\"n=\"+ins.length+\" allAccepted=\"+allAccepted+\" allMainEqualsTrim=\"+allTrim+\" hostCase=\"+host);",
+          "expect": "n=4 allAccepted=true allMainEqualsTrim=true hostCase=https://Example.COM/A?b=1"
+        }
+      ]
+    }
+  ]
+}

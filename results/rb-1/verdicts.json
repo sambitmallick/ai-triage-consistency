@@ -1,0 +1,160 @@
+{
+  "groups": [
+    {
+      "heading": "config: hosts was REJECTED, now ACCEPTED",
+      "answers": {
+        "verdict_changes": true,
+        "direction": "looser",
+        "stored_value_changes": false,
+        "already_signed_off": false,
+        "real_clients": "yes",
+        "why": "Probe shows config hosts=['2459::52d2%lo0'] is rejected by the zod 3 oracle and accepted by the merged build, so this is a real verdict change in the looser direction; the accepted value is stored unchanged (the array round-trips as given). The important part: review/corpus-diffs.md signs off KEEP OLD for zoned IPv6 and claims the union 'reproduces exactly the set zod 3 matched ... nothing *new* is let in'. A probe contradicts that: zod 3's .ip() accepted 'fe80::1%eth0' but REJECTED zoned non-fe80 addresses, while the merged zonedIpv6 refine accepts a %zone on any address that z.ipv6() likes (fe80=A/A, global=R/A). So the 508 diffs here are not the signed-off restoration; they are a widening beyond both zod 3 and zod 4. Judgement: a human must act - this is 5% of the fuzz corpus and hosts feeds connection targets, and accepting a zone index on a global/ULA address is almost certainly not what the reviewer intended to approve. Judgement on real_clients: yes - the widened set includes plainly legitimate link-local forms that zod 3 happened to reject (e.g. uppercase 'FE80::1%eth0', see the signup probe in the ip group), so well-behaved callers do live in this newly-accepted region."
+      },
+      "claims": [
+        {
+          "claim": "config.hosts with a zoned IPv6 address that is not fe80:: is rejected by zod 3 and accepted by the merged build (verdict change, looser).",
+          "probe": "const h='2459::52d2%lo0';const a=oracle.parseConfig({hosts:[h]});const b=main.parseConfig({hosts:[h]});print('z3='+(a.ok?'accept':'reject')+' now='+(b.ok?'accept':'reject'));",
+          "expect": "z3=reject now=accept"
+        },
+        {
+          "claim": "The merged zoned-IPv6 branch is wider than zod 3's .ip(): zod 3 accepted the zone suffix on 'fe80::1%eth0' but not on other IPv6 addresses, so these acceptances are new behaviour, not restored zod 3 behaviour.",
+          "probe": "const r=h=>{const a=oracle.parseConfig({hosts:[h]});const b=main.parseConfig({hosts:[h]});return (a.ok?'A':'R')+'/'+(b.ok?'A':'R');};print('fe80='+r('fe80::1%eth0')+' global='+r('2459::52d2%lo0'));",
+          "expect": "fe80=A/A global=R/A"
+        }
+      ]
+    },
+    {
+      "heading": "config: timeoutMs was ACCEPTED, now REJECTED",
+      "answers": {
+        "verdict_changes": true,
+        "direction": "stricter",
+        "stored_value_changes": false,
+        "already_signed_off": false,
+        "real_clients": "no",
+        "why": "Probe: timeoutMs=Infinity is accepted by the zod 3 oracle and stored as Infinity, and is rejected by the merged build ('Invalid input: expected number, received Infinity'); zod 4's z.number() excludes non-finite values. That is a verdict change, stricter. No input is accepted by both with a different stored value here. review/corpus-diffs.md covers only ip, name, age and a list of silent API moves - it never mentions timeoutMs or finiteness - so this specific change was not signed off (fact: I read the whole file). Judgement on real_clients: no - Infinity is not expressible as a JSON literal; it only arises from numeric overflow (JSON.parse('1e999') === Infinity, probed) or from an explicit Number.POSITIVE_INFINITY, and finite values including 1e308 still pass. An infinite timeout was nonsense under zod 3 too (it was stored and would have disabled the timeout silently), so zod 4 fails closed on something that was already a latent bug. Judgement: low risk, but worth one line in the PR description because a deployment that currently boots with an overflowed timeoutMs would now fail at config load."
+      },
+      "claims": [
+        {
+          "claim": "timeoutMs=Infinity is accepted by zod 3 (stored as Infinity) and rejected by the merged build.",
+          "probe": "const C=t=>({hosts:['1.2.3.4'],timeoutMs:t});const a=oracle.parseConfig(C(Infinity));const b=main.parseConfig(C(Infinity));print('z3='+(a.ok?'accept stored='+String(a.value.timeoutMs):'reject')+' now='+(b.ok?'accept':'reject'));",
+          "expect": "z3=accept stored=Infinity now=reject"
+        },
+        {
+          "claim": "Infinity is only reachable through numeric overflow in JSON, and ordinary large finite timeouts are still accepted by the merged build.",
+          "probe": "print('json1e999='+String(JSON.parse('1e999'))+' finiteOk='+String(main.parseConfig({hosts:['1.2.3.4'],timeoutMs:1e308}).ok));",
+          "expect": "json1e999=Infinity finiteOk=true"
+        }
+      ]
+    },
+    {
+      "heading": "signup: ip was REJECTED, now ACCEPTED",
+      "answers": {
+        "verdict_changes": true,
+        "direction": "looser",
+        "stored_value_changes": false,
+        "already_signed_off": false,
+        "real_clients": "yes",
+        "why": "Same root cause as the hosts group, on the signup.ip field (both use the shared ipAddress union in src/schemas.ts). Probe: zod 3 accepts 'fe80::1%eth0' and so does the merged build (that part is the signed-off restoration), but zod 3 REJECTS 'FE80::1%eth0', '2001:db8::1%eth0' and '::%1' while the merged build accepts all three. So the 357 diffs are a widening past zod 3, not a restoration of it, and review/corpus-diffs.md's sign-off text explicitly asserts the opposite ('nothing *new* is let in'); a claim that is factually wrong cannot count as sign-off for this behaviour. The accepted string is stored verbatim, so no stored-value issue. Judgement on real_clients: yes - uppercase hex link-local addresses and fully-expanded fe80 addresses are perfectly well-formed input that a real client sends, and they fall inside the newly accepted region. Judgement: a human must decide whether to tighten zonedIpv6 to the link-local prefix (or accept the wider set deliberately), because ip is used for abuse/geo decisions downstream."
+      },
+      "claims": [
+        {
+          "claim": "signup.ip: the signed-off case 'fe80::1%eth0' is accepted by both versions, but uppercase link-local, documentation-prefix and unspecified zoned addresses are rejected by zod 3 and accepted by the merged build.",
+          "probe": "const S=ip=>({id:'123e4567-e89b-12d3-a456-426614174000',email:'a@b.com',name:'x',ip:ip,plan:'free',flags:{}});const r=ip=>(oracle.parseSignup(S(ip)).ok?'A':'R')+'/'+(main.parseSignup(S(ip)).ok?'A':'R');print('fe80='+r('fe80::1%eth0')+' upper='+r('FE80::1%eth0')+' unspec='+r('::%1')+' doc='+r('2001:db8::1%eth0'));",
+          "expect": "fe80=A/A upper=R/A unspec=R/A doc=R/A"
+        },
+        {
+          "claim": "A newly accepted zoned address is stored verbatim (no normalisation), so the only change is the verdict.",
+          "probe": "const v=main.parseSignup({id:'123e4567-e89b-12d3-a456-426614174000',email:'a@b.com',name:'x',ip:'e575::ec0a%en0',plan:'free',flags:{}});print('ok='+v.ok+' stored['+(v.ok?v.value.ip:'-')+']');",
+          "expect": "ok=true stored[e575::ec0a%en0]"
+        }
+      ]
+    },
+    {
+      "heading": "signup: age was ACCEPTED, now REJECTED",
+      "answers": {
+        "verdict_changes": true,
+        "direction": "stricter",
+        "stored_value_changes": false,
+        "already_signed_off": true,
+        "real_clients": "no",
+        "why": "Probe reproduces the group exactly: age=9007199254740994 and age=1e21 are accepted by zod 3 and rejected by the merged build with 'Too big: expected int to be <=9007199254740991' (zod 4's .int() means safe integer), while a normal age (42) is accepted by both. review/corpus-diffs.md section '[2] age - was ACCEPTED, now REJECTED' describes this exact change (same values 1e+21 and 9007199254740992), recommends ACCEPT NEW with no code change, and lists it in the sign-off block - so this is the same change a human already reviewed; the fuzzer simply generates far more of these values than the 400-request corpus contained. Judgement on real_clients: no - every example is above 2^53 where the float grid is coarser than 1; none of them is an age, and the reviewer reached the same conclusion. Judgement: no new action beyond the follow-up already noted in the doc (give age a real .max())."
+      },
+      "claims": [
+        {
+          "claim": "Unsafe-integer ages are accepted by zod 3 and rejected by the merged build, with the zod 4 safe-integer message.",
+          "probe": "const S=a=>({id:'123e4567-e89b-12d3-a456-426614174000',email:'a@b.com',name:'x',ip:'1.2.3.4',plan:'free',flags:{},age:a});const r=x=>String(x)+'='+(oracle.parseSignup(S(x)).ok?'A':'R')+'/'+(main.parseSignup(S(x)).ok?'A':'R');print(r(9007199254740994)+' '+r(1e21)+' '+r(42));print('msg='+String(main.parseSignup(S(1e21)).problems));",
+          "expect": "9007199254740994=A/R"
+        },
+        {
+          "claim": "Ordinary ages are unaffected: 42 is accepted by both versions, so the tightening is confined to values past 2^53.",
+          "probe": "const S=a=>({id:'123e4567-e89b-12d3-a456-426614174000',email:'a@b.com',name:'x',ip:'1.2.3.4',plan:'free',flags:{},age:a});const r=x=>String(x)+'='+(oracle.parseSignup(S(x)).ok?'A':'R')+'/'+(main.parseSignup(S(x)).ok?'A':'R');print(r(42)+' '+r(13)+' '+r(130));",
+          "expect": "42=A/A"
+        }
+      ]
+    },
+    {
+      "heading": "signup: rejected by both, but different fields reported",
+      "answers": {
+        "verdict_changes": false,
+        "direction": "none",
+        "stored_value_changes": false,
+        "already_signed_off": false,
+        "real_clients": "no",
+        "why": "Every example in this group is rejected by both versions, and my probes confirm it (bothReject=true in both reconstructions), so no input flips verdict and nothing is stored. The field-set deltas are entirely the shadow of two other groups: 'ip' disappears from the list when the input carries a zoned IPv6 address (the signup ip group, looser), and 'age' appears when the input carries an unsafe integer (the age group, stricter) - probed both directions. review/corpus-diffs.md does not discuss which fields are reported on already-invalid inputs (it notes only that the corpus comparison ignores message wording), so I record already_signed_off=false for this group itself; the age half of the cause is signed off, the ip half is not. Judgement on real_clients: no - these payloads are invalid under both versions, so no well-behaved client depends on them; the only consumer impact is the content of the 400 response body. Judgement: as a group this needs no separate action - fixing the ip group removes the ip half automatically - but it should not be read as independent evidence of safety."
+      },
+      "claims": [
+        {
+          "claim": "An invalid signup carrying a zoned IPv6 address is rejected by both versions, but the merged build no longer reports the ip field.",
+          "probe": "const f=r=>r.ok?'ACCEPT':r.problems.map(p=>String(p).split(':')[0]).sort().join(',');const b={id:'123e4567-e89b-12d3-a456-426614174000',email:'nope',name:'x',ip:'e575::ec0a%en0',plan:'free',flags:{}};const o=oracle.parseSignup(b),m=main.parseSignup(b);print('bothReject='+String(!o.ok&&!m.ok)+' z3='+f(o)+' now='+f(m));",
+          "expect": "bothReject=true z3=email,ip now=email"
+        },
+        {
+          "claim": "An invalid signup carrying an unsafe-integer age is rejected by both versions, but the merged build additionally reports the age field.",
+          "probe": "const f=r=>r.ok?'ACCEPT':r.problems.map(p=>String(p).split(':')[0]).sort().join(',');const b={id:'123e4567-e89b-12d3-a456-426614174000',email:'nope',name:'x',ip:'1.2.3.4',plan:'free',flags:{},age:1e21};const o=oracle.parseSignup(b),m=main.parseSignup(b);print('bothReject='+String(!o.ok&&!m.ok)+' z3='+f(o)+' now='+f(m));",
+          "expect": "bothReject=true z3=email now=age,email"
+        }
+      ]
+    },
+    {
+      "heading": "config: rejected by both, but different fields reported",
+      "answers": {
+        "verdict_changes": false,
+        "direction": "none",
+        "stored_value_changes": false,
+        "already_signed_off": false,
+        "real_clients": "no",
+        "why": "Same shape as the signup version: probe reconstructs one of the listed examples ({hosts:['2459::52d2%lo0','bad'], timeoutMs:Infinity}) and both versions reject it (bothReject=true), with zod 3 reporting hosts.0,hosts.1 and the merged build reporting hosts.1,timeoutMs. So no verdict flips and nothing is stored; the deltas are the hosts widening (hosts group) removing a hosts.N entry and the Infinity tightening (timeoutMs group) adding a timeoutMs entry. Not discussed in review/corpus-diffs.md, hence already_signed_off=false. Judgement on real_clients: no - every input here is invalid under both versions. Judgement: no independent action; it resolves when the hosts and timeoutMs groups are settled."
+      },
+      "claims": [
+        {
+          "claim": "A config with a zoned host, a junk host and timeoutMs=Infinity is rejected by both versions but reports different fields (hosts.0 drops out, timeoutMs appears).",
+          "probe": "const f=r=>r.ok?'ACCEPT':r.problems.map(p=>String(p).split(':')[0]).sort().join(',');const c={hosts:['2459::52d2%lo0','bad'],timeoutMs:Infinity};const o=oracle.parseConfig(c),m=main.parseConfig(c);print('bothReject='+String(!o.ok&&!m.ok)+' z3='+f(o)+' now='+f(m));",
+          "expect": "bothReject=true z3=hosts.0,hosts.1 now=hosts.1,timeoutMs"
+        }
+      ]
+    },
+    {
+      "heading": "signup: website accepted, but the PARSED VALUE changed",
+      "answers": {
+        "verdict_changes": false,
+        "direction": "none",
+        "stored_value_changes": true,
+        "already_signed_off": false,
+        "real_clients": "yes",
+        "why": "Probe: ' https://example.com' and 'https://example.com/a?b=c ' are accepted by BOTH versions, but zod 3 stores the string verbatim (with the surrounding whitespace) while zod 4's z.url() stores the trimmed value; a clean URL is stored identically by both, so the change is confined to whitespace-padded input. No verdict flips in this group. review/corpus-diffs.md lists z.string().url() -> z.url() under 'Silent API moves (no corpus difference)' and asserts it produced identical answers on all 400 requests - it therefore does not sign off a stored-value change, it denies one exists; the 400-request corpus simply contained no padded URL. Judgement on real_clients: yes - a leading space or trailing newline on a pasted URL from a web form is very ordinary input. Judgement: a human should confirm this is wanted (it is arguably an improvement - the stored column gets a clean URL), but it changes persisted data and any downstream exact-string comparison or dedup against previously stored values, so it should be an explicit decision rather than an inherited one."
+      },
+      "claims": [
+        {
+          "claim": "A whitespace-padded website URL is accepted by both versions but stored with the padding by zod 3 and trimmed by the merged build.",
+          "probe": "const S=w=>({id:'123e4567-e89b-12d3-a456-426614174000',email:'a@b.com',name:'x',ip:'1.2.3.4',plan:'free',flags:{},website:w});const r=w=>{const o=oracle.parseSignup(S(w)),m=main.parseSignup(S(w));return 'in['+w+'] z3['+(o.ok?o.value.website:'R')+'] now['+(m.ok?m.value.website:'R')+']';};print(r(' https://example.com'));print(r('https://example.com/a?b=c '));",
+          "expect": "z3[ https://example.com] now[https://example.com]"
+        },
+        {
+          "claim": "A clean URL is stored identically by both versions, so the merged build is not rewriting URLs in general - only trimming surrounding whitespace.",
+          "probe": "const S=w=>({id:'123e4567-e89b-12d3-a456-426614174000',email:'a@b.com',name:'x',ip:'1.2.3.4',plan:'free',flags:{},website:w});const r=w=>{const o=oracle.parseSignup(S(w)),m=main.parseSignup(S(w));return 'in['+w+'] z3['+(o.ok?o.value.website:'R')+'] now['+(m.ok?m.value.website:'R')+']';};print(r('https://example.com'));print(r('https://example.com/a?b=c'));",
+          "expect": "in[https://example.com] z3[https://example.com] now[https://example.com]"
+        }
+      ]
+    }
+  ]
+}

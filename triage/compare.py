@@ -14,12 +14,14 @@ HEADINGS = re.findall(r"^\[(\d+)\] (.+)$", EVIDENCE, flags=re.M)
 
 
 def verdicts(d: Path) -> dict:
-    h = d / "review" / "verdicts.harness.json"
+    if (d / "review").exists():
+        d = d / "review"
+    h = d / "verdicts.harness.json"
     if h.exists():
         computed = json.loads(h.read_text(encoding="utf-8")).get("computed")
         if computed:
             return computed
-    p = d / "review" / "verdicts.json"
+    p = d / "verdicts.json"
     if not p.exists():
         return {}
     return {g["heading"]: g.get("verdict", "?") for g in json.loads(p.read_text(encoding="utf-8"))["groups"]}

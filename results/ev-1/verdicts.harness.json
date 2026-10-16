@@ -1,0 +1,107 @@
+{
+ "computed": {
+  "config: hosts was REJECTED, now ACCEPTED": "MATTERS",
+  "config: timeoutMs was ACCEPTED, now REJECTED": "NOISE",
+  "signup: ip was REJECTED, now ACCEPTED": "MATTERS",
+  "signup: age was ACCEPTED, now REJECTED": "NOISE",
+  "signup: rejected by both, but different fields reported": "NOISE",
+  "config: rejected by both, but different fields reported": "NOISE",
+  "signup: website accepted, but the PARSED VALUE changed": "NOISE"
+ },
+ "claims": {
+  "config: hosts was REJECTED, now ACCEPTED": [
+   {
+    "claim": "On 7 sampled IPv6 addresses carrying a zone index, the pre-upgrade build accepts 2 as config.hosts entries and the merged build accepts all 7.",
+    "verified": true,
+    "output": "fe80::1%eth0 oracle:true main:true\nfe80::%25 oracle:true main:true\n2459::52d2%lo0 oracle:false main:true\n3d62::9037%1 oracle:false main:true\n::%1 oracle:false main:true\n2001:db8::ff00:42:8329%25 oracle:false main:true\n305b:7432:e22d:4c35:1962:71c6:ed4d:69ae%1 oracle:false main:true\nORACLE_ACCEPTED=2"
+   },
+   {
+    "claim": "The global (non link-local) zoned host 2001:db8::ff00:42:8329%25 is rejected by the pre-upgrade build and accepted by the merged build.",
+    "verified": true,
+    "output": "global_zoned oracle:false main:true"
+   },
+   {
+    "claim": "The link-local host fe80::1%eth0 is accepted by both the pre-upgrade build and the merged build.",
+    "verified": true,
+    "output": "linklocal oracle:true main:true"
+   }
+  ],
+  "config: timeoutMs was ACCEPTED, now REJECTED": [
+   {
+    "claim": "config.timeoutMs = Infinity is accepted by the pre-upgrade build and rejected by the merged build.",
+    "verified": true,
+    "output": "INFINITY oracle:true main:false main_problems:[\"timeoutMs: Invalid input: expected number, received Infinity\"]"
+   },
+   {
+    "claim": "For the finite positive timeouts 1, 5000, 1e308 and 0.5 both builds give the same verdict and the same parsed value.",
+    "verified": true,
+    "output": "t=1 same:true\nt=5000 same:true\nt=1e+308 same:true\nt=0.5 same:true\nFINITE_SAME=4/4"
+   },
+   {
+    "claim": "JSON input can express Infinity via an overflowing numeric literal: JSON.parse of 1e999 yields Infinity.",
+    "verified": true,
+    "output": "JSON_1e999=Infinity"
+   }
+  ],
+  "signup: ip was REJECTED, now ACCEPTED": [
+   {
+    "claim": "Of the signup ip values fe80::1%eth0, ::%1 and 2001:db8::ff00:42:8329%25, the pre-upgrade build accepts 1 of 3 and the merged build accepts 3 of 3.",
+    "verified": true,
+    "output": "fe80::1%eth0 oracle:true main:true\n::%1 oracle:false main:true\n2001:db8::ff00:42:8329%25 oracle:false main:true\nORACLE_ACCEPTED=1/3 MAIN_ACCEPTED=3/3"
+   },
+   {
+    "claim": "signup ip = '::%1' is rejected by the pre-upgrade build and accepted by the merged build.",
+    "verified": true,
+    "output": "unspecified_zoned oracle:false main:true"
+   }
+  ],
+  "signup: age was ACCEPTED, now REJECTED": [
+   {
+    "claim": "signup age = 1e21 is accepted by the pre-upgrade build and rejected by the merged build.",
+    "verified": true,
+    "output": "age1e21 oracle:true main:false [\"age: Too big: expected int to be <=9007199254740991\"]"
+   },
+   {
+    "claim": "For ages 13, 42 and 9007199254740991 both builds accept and return the same parsed value.",
+    "verified": true,
+    "output": "age=13 same:true\nage=42 same:true\nage=9007199254740991 same:true\nSAFE_SAME=3/3"
+   }
+  ],
+  "signup: rejected by both, but different fields reported": [
+   {
+    "claim": "For a signup with a bad email, a zoned ip and a bad plan, both builds reject; the pre-upgrade build reports email,ip,plan and the merged build reports email,plan.",
+    "verified": true,
+    "output": "both_reject:true oracle:[email,ip,plan] main:[email,plan]"
+   },
+   {
+    "claim": "For a signup with a bad email, an empty name, a bad plan and age 1e21, both builds reject; the pre-upgrade build reports email,name,plan and the merged build reports age,email,name,plan.",
+    "verified": true,
+    "output": "both_reject:true oracle:[email,name,plan] main:[age,email,name,plan]"
+   }
+  ],
+  "config: rejected by both, but different fields reported": [
+   {
+    "claim": "For a config with a numeric port and a zoned second host, both builds reject; the pre-upgrade build reports hosts.1,port and the merged build reports only port.",
+    "verified": true,
+    "output": "both_reject:true oracle:[hosts.1,port] main:[port]"
+   },
+   {
+    "claim": "For a config with an empty hosts array and timeoutMs Infinity, both builds reject; the pre-upgrade build reports only hosts and the merged build reports hosts,timeoutMs.",
+    "verified": true,
+    "output": "both_reject:true oracle:[hosts] main:[hosts,timeoutMs]"
+   }
+  ],
+  "signup: website accepted, but the PARSED VALUE changed": [
+   {
+    "claim": "For website = ' https://example.com' both builds accept, the pre-upgrade build stores the string with the leading space and the merged build stores it without.",
+    "verified": true,
+    "output": "in=\" https://example.com\" oracle_ok:true main_ok:true oracle=\" https://example.com\" main=\"https://example.com\"\nin=\"https://example.com\\n\" oracle_ok:true main_ok:true oracle=\"https://example.com\\n\" main=\"https://example.com\""
+   },
+   {
+    "claim": "For six website values with no leading or trailing whitespace, both builds accept and store a byte-identical string.",
+    "verified": true,
+    "output": "\"https://example.com\" identical:true\n\"https://example.com/\" identical:true\n\"http://Example.COM/A?x=1\" identical:true\n\"https://example.com/p%2Fq\" identical:true\n\"https://ex\u00e4mple.com/\u00fc\" identical:true\n\"https://example.com/a//b/../c\" identical:true\nNO_WS_IDENTICAL=6/6"
+   }
+  ]
+ }
+}

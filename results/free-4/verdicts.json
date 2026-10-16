@@ -1,0 +1,39 @@
+{
+  "groups": [
+    {
+      "heading": "config: hosts was REJECTED, now ACCEPTED",
+      "verdict": "MATTERS",
+      "why": "Root cause is the hand-written `zonedIpv6` refine in src/schemas.ts, and it is wider than what zod 3 accepted -- so this is a new hole, not a restored behaviour. Probe evidence (oracle vs merged build, same inputs): zod3 ACCEPTS 'fe80::1%eth0' and 'fe80::1%25eth0', but REJECTS '2001:db8::1%wlan0', '::1%eth0', 'FE80::1%ETH0', 'fe80::1%a b', 'fe80::1%a\\nb', 'fe80::1%../../etc/passwd', 'fe80::1%<script>alert(1)</script>', 'fe80::1%zone%zone' -- the merged build ACCEPTS all of those and stores the string verbatim. That matches the fuzzer examples here, which are all non-link-local zoned addresses ('5ac3::de2a%wlan0', '2001:db8::ff00:42:8329%wlan0', '589b:...%1'). review/corpus-diffs.md justified the refine only for link-local fe80::/10 ('meaningless without its zone') and asserted the union 'reproduces exactly the set zod 3 matched ... nothing *new* is let in'; the probe shows that assertion is wrong, so the human sign-off does not cover what shipped. Judgement on severity: `hosts` is a connect-to list, and the zone part is unvalidated free text (newlines, path traversal, markup) that is persisted as-is, so a human should tighten the refine (restrict to link-local addresses and to a real zone-id charset) before this ships."
+    },
+    {
+      "heading": "config: timeoutMs was ACCEPTED, now REJECTED",
+      "verdict": "NOISE",
+      "why": "Reproduced with the probe: zod3 accepts `timeoutMs: Infinity` (and the parsed value serialises to null, i.e. it was already unusable downstream), while zod 4 rejects it with 'expected number, received Infinity' because z.number() now requires a finite number. Every fuzzer example in this group is literally Infinity. Two reasons no action is needed: Infinity is not expressible in JSON, so a config loaded from env/JSON can never carry it (the schema comment says config comes from environment strings, and `port` is the string->number field), and an infinite timeout is a defect in any case, so rejecting it at the boundary is strictly safer. Same class of finite/safe-number tightening the human already signed off as ACCEPT NEW for `age`. Judgement, not a documented decision: timeoutMs is not mentioned in review/corpus-diffs.md, so if some in-process caller deliberately passes Infinity to mean 'no timeout' it would now fail -- worth a changelog line, not a blocker."
+    },
+    {
+      "heading": "signup: ip was REJECTED, now ACCEPTED",
+      "verdict": "MATTERS",
+      "why": "Same root cause and same evidence as the hosts group: the `zonedIpv6` refine accepts a '%zone' suffix on any ipv6 address with any non-empty zone text, whereas zod 3's .ip() accepted it only for lowercase fe80: addresses with an alphanumeric zone. Every example here is outside zod 3's set ('305b:...%1', '2001:db8::ff00:42:8329%25', '::%1', 'e575::ec0a%en0'), and my probe confirms the merged build also now accepts and stores 'fe80::1%a\\nb', 'fe80::1%../../etc/passwd' and 'fe80::1%<script>alert(1)</script>', which zod 3 rejected. The signed-off review claimed the union lets in nothing new, so this widening was never actually reviewed; `ip` is stored per account and typically used for audit/geo/abuse decisions, so the refine should be narrowed (and tests added for the non-fe80 / dirty-zone cases) before shipping. Judgement: the direction here is the unsafe one -- it loosens input validation beyond the stated intent."
+    },
+    {
+      "heading": "signup: age was ACCEPTED, now REJECTED",
+      "verdict": "NOISE",
+      "why": "This is exactly the change the human already reviewed and accepted. review/corpus-diffs.md section '[2] age' records zod 3's .int() as Number.isInteger (true for any integral float) versus zod 4's safe-integer bound, recommends ACCEPT NEW with no code change, and lists 1e+21 and 9007199254740992 as the affected corpus requests. Probe confirms the merged build rejects 9007199254740994 / 1e+21 / 1.797e308 with 'Too big: expected int to be <=9007199254740991' while 13 and 9007199254740991 still pass. All fuzzer examples are values above 2^53 -- not ages, and not exactly representable as floats. The suggested follow-up (a real .max(130) domain bound) is a non-blocking improvement, as the earlier review already noted."
+    },
+    {
+      "heading": "signup: rejected by both, but different fields reported",
+      "verdict": "NOISE",
+      "why": "The verdict is unchanged (reject in both builds, so the caller still gets the same 400); only the issue list differs. Every example decomposes into the two root causes already triaged above: `ip` drops out of the list because the zone refine now accepts it (e.g. 'zod3 (email, ip, plan)' -> 'now (email, plan)'), and `age` appears because of the safe-integer bound (e.g. 'zod3 (email, name, plan)' -> 'now (age, email, name, plan)'). My probe reproduced both shapes directly and checked the other fields for independent drift: emoji names of 45/50 code points still reject in both builds (the UTF-16 .refine works), a non-RFC GUID still passes in both (z.guid, not z.uuid), non-boolean flags values reject as flags.<key> in both, and prefs defaults/prefault behave identically. So no action for this group itself -- the action is fixing the ip refine, tracked under the ip/hosts groups. Judgement: this assumes nothing downstream keys on the exact set of reported fields, which corpus/canon.js already treats as non-comparable detail."
+    },
+    {
+      "heading": "config: rejected by both, but different fields reported",
+      "verdict": "NOISE",
+      "why": "Same reasoning as the signup field-set group: both builds reject, only the issue list moves, and each example is explained by the two causes already triaged -- a zoned host index dropping out of the list ('zod3 (hosts.1, port)' -> 'now (port)'; 'zod3 (hosts.1, hosts.2)' -> 'now (hosts.2)') and `timeoutMs` being added when the input is Infinity ('zod3 (hosts)' -> 'now (hosts, timeoutMs)'). My probe confirmed the rest of config behaves identically across builds: port string->number via prefault, missing port defaulting to 8080, timeoutMs defaulting to 5000, NaN rejected by both, 1e21 accepted by both. No separate action; the host zone-index widening is the actionable item in the hosts group."
+    },
+    {
+      "heading": "signup: website accepted, but the PARSED VALUE changed",
+      "verdict": "NOISE",
+      "why": "Confirmed with the probe: zod 4's z.url() trims surrounding whitespace before returning, so ' https://example.com' and 'https://example.com\\n' now store 'https://example.com', while zod 3 stored the raw string. Only whitespace is affected -- nothing else is normalised: 'HTTPS://EXAMPLE.COM/A' keeps its case, 'https://example.com' gains no trailing slash, the unicode host 'https://bücher.de' and 'https://example.com/a/../b' are unchanged, and the accept/reject verdict is identical in both builds. The only inputs affected are ones whose old stored value was a malformed URL with a leading space or trailing newline, so the new value is strictly more correct. Judgement: I would not block on this, but it is an undocumented value change -- review/corpus-diffs.md lists z.string().url() -> z.url() as a no-behaviour-change API move -- so it deserves a migration-note line, and a human should sanity-check it if any stored website string is used as an exact-match key (dedup, cache key, signature) rather than just a link."
+    }
+  ]
+}

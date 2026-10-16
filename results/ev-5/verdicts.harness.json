@@ -1,0 +1,132 @@
+{
+ "computed": {
+  "config: hosts was REJECTED, now ACCEPTED": "MATTERS",
+  "config: timeoutMs was ACCEPTED, now REJECTED": "NOISE",
+  "signup: ip was REJECTED, now ACCEPTED": "MATTERS",
+  "signup: age was ACCEPTED, now REJECTED": "NOISE",
+  "signup: rejected by both, but different fields reported": "NOISE",
+  "config: rejected by both, but different fields reported": "NOISE",
+  "signup: website accepted, but the PARSED VALUE changed": "NOISE"
+ },
+ "claims": {
+  "config: hosts was REJECTED, now ACCEPTED": [
+   {
+    "claim": "zod 3's z.string().ip() accepted a %zone suffix only on fe80 link-local addresses: 'fe80::1%eth0' passes while '2459::52d2%lo0' and '::%1' fail.",
+    "verified": true,
+    "output": "zod3 zone fe80=true global=false unspec=false"
+   },
+   {
+    "claim": "The merged Config accepts hosts the zod 3 oracle rejected: ['2459::52d2%lo0'] and ['2001:db8::ff00:42:8329%wlan0'].",
+    "verified": true,
+    "output": "oracle=false,false main=true,true"
+   },
+   {
+    "claim": "The merged Config also accepts zoned forms '7e60::16eb%25' and '::%1' that zod 3 rejected, while 'fe80::1%eth0' is accepted by both builds.",
+    "verified": true,
+    "output": "zone25=false/true unspec=false/true fe80=true/true"
+   }
+  ],
+  "config: timeoutMs was ACCEPTED, now REJECTED": [
+   {
+    "claim": "The zod 3 oracle accepts timeoutMs=Infinity; the merged build rejects it with 'timeoutMs: Invalid input: expected number, received Infinity'.",
+    "verified": true,
+    "output": "Infinity oracle=true main=false mainMsg=timeoutMs: Invalid input: expected number, received Infinity"
+   },
+   {
+    "claim": "zod 3's z.number().positive() accepts Infinity; zod 4's z.number() rejects it.",
+    "verified": true,
+    "output": "zod3=true zod4=false"
+   },
+   {
+    "claim": "The config the oracle accepted does not survive JSON: stringifying its parsed value renders timeoutMs as null.",
+    "verified": true,
+    "output": "oracleValue={\"port\":8080,\"hosts\":[\"1.2.3.4\"],\"timeoutMs\":null}"
+   },
+   {
+    "claim": "Finite timeouts and the 5000 default are unchanged: timeoutMs=1000 parses to 1000 in both builds and an omitted timeoutMs defaults to 5000 in both.",
+    "verified": true,
+    "output": "finite=1000/1000 default=5000/5000"
+   }
+  ],
+  "signup: ip was REJECTED, now ACCEPTED": [
+   {
+    "claim": "The merged Signup accepts ip values the zod 3 oracle rejected: '2001:db8::ff00:42:8329%25', '::%1' and 'e575::ec0a%en0'.",
+    "verified": true,
+    "output": "g1=false/true g2=false/true g3=false/true"
+   },
+   {
+    "claim": "zod 3's z.string().ip() accepted a %zone suffix only on fe80 link-local addresses: 'fe80::1%eth0' passes while '2459::52d2%lo0' and '::%1' fail.",
+    "verified": true,
+    "output": "zod3 zone fe80=true global=false unspec=false"
+   },
+   {
+    "claim": "Both builds accept ip 'fe80::1%eth0' and '1.2.3.4', and both reject 'nope%eth0'.",
+    "verified": true,
+    "output": "fe80=true/true junk=false/false v4=true/true"
+   }
+  ],
+  "signup: age was ACCEPTED, now REJECTED": [
+   {
+    "claim": "The oracle accepts age=1e+21; the merged build rejects it with 'age: Too big: expected int to be <=9007199254740991'.",
+    "verified": true,
+    "output": "age1e21 oracle=true main=false msg=age: Too big: expected int to be <=9007199254740991"
+   },
+   {
+    "claim": "The oracle accepts age=9007199254740994 and the merged build rejects it.",
+    "verified": true,
+    "output": "age9007199254740994 oracle=true main=false"
+   },
+   {
+    "claim": "The merged build still accepts age 42 and 13 and still rejects 12.",
+    "verified": true,
+    "output": "a42=true a13=true a12=false"
+   },
+   {
+    "claim": "Integers past the 53-bit mantissa are not exactly representable: 9007199254740993 === 9007199254740992.",
+    "verified": true,
+    "output": "lossy=true"
+   }
+  ],
+  "signup: rejected by both, but different fields reported": [
+   {
+    "claim": "For a signup with a bad email, a zoned ip and age=1e+21, both builds return ok=false but the oracle reports fields (email, ip) while the merged build reports (age, email).",
+    "verified": true,
+    "output": "ok=false/false oracle=email,ip main=age,email"
+   },
+   {
+    "claim": "With an ip that is invalid for both builds, ip is reported by both and the only extra field in the merged build is age.",
+    "verified": true,
+    "output": "ok=false/false oracle=email,ip main=age,email,ip"
+   }
+  ],
+  "config: rejected by both, but different fields reported": [
+   {
+    "claim": "For hosts=['2459::52d2%lo0'] with timeoutMs=Infinity both builds return ok=false, the oracle reporting hosts.0 and the merged build reporting timeoutMs.",
+    "verified": true,
+    "output": "ok=false/false oracle=hosts.0 main=timeoutMs"
+   },
+   {
+    "claim": "For hosts=['nope'] with timeoutMs=Infinity both builds report hosts.0 and the merged build additionally reports timeoutMs.",
+    "verified": true,
+    "output": "ok=false/false oracle=hosts.0 main=hosts.0,timeoutMs"
+   }
+  ],
+  "signup: website accepted, but the PARSED VALUE changed": [
+   {
+    "claim": "For website=' https://example.com' both builds accept, the oracle stores the input unchanged and the merged build stores the trimmed string.",
+    "verified": true,
+    "output": "lead true/true oracleRaw=true mainTrimmed=true"
+   },
+   {
+    "claim": "For website='https://example.com\\n' both builds accept, the oracle stores the input unchanged and the merged build stores the trimmed string.",
+    "verified": true,
+    "output": "trail true/true oracleRaw=true mainTrimmed=true"
+   },
+   {
+    "claim": "Apart from surrounding whitespace the merged build does not rewrite the URL: 'HTTPS://Example.COM/Path' and 'https://example.com/a/../b' are stored unchanged by both builds.",
+    "verified": true,
+    "output": "case=same/same dots=same/same"
+   }
+  ]
+ }
+}

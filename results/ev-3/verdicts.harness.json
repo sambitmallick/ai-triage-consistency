@@ -1,0 +1,132 @@
+{
+ "computed": {
+  "config: hosts was REJECTED, now ACCEPTED": "MATTERS",
+  "config: timeoutMs was ACCEPTED, now REJECTED": "NOISE",
+  "signup: ip was REJECTED, now ACCEPTED": "MATTERS",
+  "signup: age was ACCEPTED, now REJECTED": "NOISE",
+  "signup: rejected by both, but different fields reported": "NOISE",
+  "config: rejected by both, but different fields reported": "NOISE",
+  "signup: website accepted, but the PARSED VALUE changed": "NOISE"
+ },
+ "claims": {
+  "config: hosts was REJECTED, now ACCEPTED": [
+   {
+    "claim": "zod 3's z.string().ip() accepted fe80::1%eth0 but rejected 2459::52d2%lo0, 2001:db8::ff00:42:8329%wlan0 and ::%1.",
+    "verified": true,
+    "output": "fe80::1%eth0=true 2459::52d2%lo0=false 2001:db8::ff00:42:8329%wlan0=false ::%1=false"
+   },
+   {
+    "claim": "main.parseConfig accepts hosts ['2459::52d2%lo0'] while the zod 3 oracle rejects it at hosts.0.",
+    "verified": true,
+    "output": "oracle=hosts.0 main=accept"
+   },
+   {
+    "claim": "main.parseConfig accepts all three of ::1%a b, ::1%$(reboot) and 2001:db8::1%../../etc/passwd as hosts entries; the zod 3 oracle accepts none of them.",
+    "verified": true,
+    "output": "junkZones n=3 oracleAccepted=0 mainAccepted=3"
+   }
+  ],
+  "config: timeoutMs was ACCEPTED, now REJECTED": [
+   {
+    "claim": "The zod 3 oracle accepts timeoutMs: Infinity and stores Infinity, while main rejects it with 'timeoutMs: Invalid input: expected number, received Infinity'.",
+    "verified": true,
+    "output": "oracle_ok=true storedInfinity=true main_ok=false main=timeoutMs: Invalid input: expected number, received Infinity"
+   },
+   {
+    "claim": "JSON cannot carry Infinity: JSON.stringify nulls an Infinity field, JSON.parse of a body with a bare Infinity throws SyntaxError, and Number('1e999') is Infinity.",
+    "verified": true,
+    "output": "stringify={\"t\":null} parse=SyntaxError numStr=Infinity"
+   },
+   {
+    "claim": "main.parseConfig still accepts a finite large timeoutMs of 1e+308.",
+    "verified": true,
+    "output": "main_ok=true timeoutMs=1e+308"
+   }
+  ],
+  "signup: ip was REJECTED, now ACCEPTED": [
+   {
+    "claim": "The zod 3 oracle rejects signup ip 3d62::9037%1 and ip ::%1; main accepts both.",
+    "verified": true,
+    "output": "3d62::9037%1 oracle=reject/main=accept | ::%1 oracle=reject/main=accept"
+   },
+   {
+    "claim": "zod 3's z.string().ip() accepted fe80::1%eth0 but rejected 2459::52d2%lo0, 2001:db8::ff00:42:8329%wlan0 and ::%1.",
+    "verified": true,
+    "output": "fe80::1%eth0=true 2459::52d2%lo0=false 2001:db8::ff00:42:8329%wlan0=false ::%1=false"
+   },
+   {
+    "claim": "main.parseSignup accepts ip values ::1%a b, ::1%$(reboot) and 2001:db8::1%../../etc/passwd (3 of 3); the zod 3 oracle accepts none of them.",
+    "verified": true,
+    "output": "junkZones n=3 oracleAccepted=0 mainAccepted=3"
+   },
+   {
+    "claim": "ip fe80::1%eth0 is accepted by both the zod 3 oracle and main.",
+    "verified": true,
+    "output": "fe80::1%eth0 oracle=accept main=accept"
+   }
+  ],
+  "signup: age was ACCEPTED, now REJECTED": [
+   {
+    "claim": "The zod 3 oracle accepts age 1e+21; main rejects it with 'age: Too big: expected int to be <=9007199254740991'.",
+    "verified": true,
+    "output": "oracle_ok=true main_ok=false main=age: Too big: expected int to be <=9007199254740991"
+   },
+   {
+    "claim": "Integers above 2^53 are not distinctly representable: 9007199254740993 === 9007199254740992 is true.",
+    "verified": true,
+    "output": "repr=true"
+   },
+   {
+    "claim": "main.parseSignup still accepts a normal age of 42.",
+    "verified": true,
+    "output": "age42 main_ok=true age=42"
+   }
+  ],
+  "signup: rejected by both, but different fields reported": [
+   {
+    "claim": "For a signup with bad email, plan 'gold' and ip 3d62::9037%1 the oracle reports fields email,ip,plan while main reports email,plan.",
+    "verified": true,
+    "output": "oracle=email,ip,plan main=email,plan"
+   },
+   {
+    "claim": "For a signup with bad email, plan 'gold' and age 1e+21 the oracle reports fields email,plan while main reports age,email,plan.",
+    "verified": true,
+    "output": "oracle=email,plan main=age,email,plan"
+   },
+   {
+    "claim": "Both of those signups are rejected by both builds (all four parses return ok=false).",
+    "verified": true,
+    "output": "allRejected=true"
+   }
+  ],
+  "config: rejected by both, but different fields reported": [
+   {
+    "claim": "For hosts ['2459::52d2%lo0','nope'] the oracle reports hosts.0,hosts.1 while main reports only hosts.1.",
+    "verified": true,
+    "output": "oracle=hosts.0,hosts.1 main=hosts.1"
+   },
+   {
+    "claim": "For hosts ['nope'] with timeoutMs Infinity the oracle reports hosts.0 while main reports hosts.0,timeoutMs.",
+    "verified": true,
+    "output": "oracle=hosts.0 main=hosts.0,timeoutMs"
+   },
+   {
+    "claim": "Both of those configs are rejected by both builds (all four parses return ok=false).",
+    "verified": true,
+    "output": "allRejected=true"
+   }
+  ],
+  "signup: website accepted, but the PARSED VALUE changed": [
+   {
+    "claim": "For website ' https://example.com' and 'https://example.com' with a trailing newline both builds accept; the oracle's stored value equals the input and main's stored value equals input.trim().",
+    "verified": true,
+    "output": "n=2 bothAccept=true oracleEqualsInput=true mainEqualsTrim=true"
+   },
+   {
+    "claim": "For the four tested URLs main accepts all of them and every stored value equals input.trim(), with 'https://Example.COM/A?b=1 ' stored as 'https://Example.COM/A?b=1'.",
+    "verified": true,
+    "output": "n=4 allAccepted=true allMainEqualsTrim=true hostCase=https://Example.COM/A?b=1"
+   }
+  ]
+ }
+}

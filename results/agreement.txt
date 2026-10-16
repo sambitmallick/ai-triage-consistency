@@ -1,0 +1,38 @@
+free mode: 5 of 5 runs produced verdicts
+
+group                                                      r1      r2      r3      r4      r5      agree
+[508] config: hosts was REJECTED, now ACCEPTED             MATTERS MATTERS MATTERS MATTERS MATTERS yes
+[463] config: timeoutMs was ACCEPTED, now REJECTED         MATTERS NOISE   NOISE   NOISE   NOISE   4/5
+[357] signup: ip was REJECTED, now ACCEPTED                MATTERS MATTERS MATTERS MATTERS MATTERS yes
+[324] signup: age was ACCEPTED, now REJECTED               NOISE   NOISE   NOISE   NOISE   NOISE   yes
+[88] signup: rejected by both, but different fields repor  NOISE   NOISE   NOISE   NOISE   NOISE   yes
+[47] config: rejected by both, but different fields repor  NOISE   NOISE   NOISE   NOISE   NOISE   yes
+[8] signup: website accepted, but the PARSED VALUE change  NOISE   NOISE   NOISE   NOISE   NOISE   yes
+
+unanimous on 6 of 7 groups
+
+evidence mode: 5 of 5 runs produced verdicts
+
+group                                                      r1      r2      r3      r4      r5      agree
+[508] config: hosts was REJECTED, now ACCEPTED             MATTERS MATTERS MATTERS MATTERS MATTERS yes
+[463] config: timeoutMs was ACCEPTED, now REJECTED         NOISE   NOISE   NOISE   NOISE   NOISE   yes
+[357] signup: ip was REJECTED, now ACCEPTED                MATTERS MATTERS MATTERS MATTERS MATTERS yes
+[324] signup: age was ACCEPTED, now REJECTED               NOISE   NOISE   NOISE   NOISE   NOISE   yes
+[88] signup: rejected by both, but different fields repor  NOISE   NOISE   NOISE   NOISE   NOISE   yes
+[47] config: rejected by both, but different fields repor  NOISE   NOISE   NOISE   NOISE   NOISE   yes
+[8] signup: website accepted, but the PARSED VALUE change  NOISE   NOISE   NOISE   NOISE   NOISE   yes
+
+unanimous on 7 of 7 groups
+
+rubric mode (verdict computed by the harness): 5 of 5 runs produced verdicts
+
+group                                                      r1      r2      r3      r4      r5      agree
+[508] config: hosts was REJECTED, now ACCEPTED             MATTERS MATTERS MATTERS MATTERS MATTERS yes
+[463] config: timeoutMs was ACCEPTED, now REJECTED         NOISE   MATTERS NOISE   NOISE   NOISE   4/5
+[357] signup: ip was REJECTED, now ACCEPTED                MATTERS MATTERS MATTERS MATTERS MATTERS yes
+[324] signup: age was ACCEPTED, now REJECTED               SIGNED  SIGNED  SIGNED  SIGNED  SIGNED  yes
+[88] signup: rejected by both, but different fields repor  NOISE   NOISE   NOISE   NOISE   NOISE   yes
+[47] config: rejected by both, but different fields repor  NOISE   NOISE   NOISE   NOISE   NOISE   yes
+[8] signup: website accepted, but the PARSED VALUE change  MATTERS MATTERS MATTERS MATTERS MATTERS yes
+
+unanimous on 6 of 7 groups

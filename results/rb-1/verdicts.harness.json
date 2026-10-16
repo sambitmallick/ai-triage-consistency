@@ -1,0 +1,92 @@
+{
+ "computed": {
+  "config: hosts was REJECTED, now ACCEPTED": "MATTERS",
+  "config: timeoutMs was ACCEPTED, now REJECTED": "NOISE",
+  "signup: ip was REJECTED, now ACCEPTED": "MATTERS",
+  "signup: age was ACCEPTED, now REJECTED": "SIGNED OFF",
+  "signup: rejected by both, but different fields reported": "NOISE",
+  "config: rejected by both, but different fields reported": "NOISE",
+  "signup: website accepted, but the PARSED VALUE changed": "MATTERS"
+ },
+ "claims": {
+  "config: hosts was REJECTED, now ACCEPTED": [
+   {
+    "claim": "config.hosts with a zoned IPv6 address that is not fe80:: is rejected by zod 3 and accepted by the merged build (verdict change, looser).",
+    "verified": true,
+    "output": "z3=reject now=accept"
+   },
+   {
+    "claim": "The merged zoned-IPv6 branch is wider than zod 3's .ip(): zod 3 accepted the zone suffix on 'fe80::1%eth0' but not on other IPv6 addresses, so these acceptances are new behaviour, not restored zod 3 behaviour.",
+    "verified": true,
+    "output": "fe80=A/A global=R/A"
+   }
+  ],
+  "config: timeoutMs was ACCEPTED, now REJECTED": [
+   {
+    "claim": "timeoutMs=Infinity is accepted by zod 3 (stored as Infinity) and rejected by the merged build.",
+    "verified": true,
+    "output": "z3=accept stored=Infinity now=reject"
+   },
+   {
+    "claim": "Infinity is only reachable through numeric overflow in JSON, and ordinary large finite timeouts are still accepted by the merged build.",
+    "verified": true,
+    "output": "json1e999=Infinity finiteOk=true"
+   }
+  ],
+  "signup: ip was REJECTED, now ACCEPTED": [
+   {
+    "claim": "signup.ip: the signed-off case 'fe80::1%eth0' is accepted by both versions, but uppercase link-local, documentation-prefix and unspecified zoned addresses are rejected by zod 3 and accepted by the merged build.",
+    "verified": true,
+    "output": "fe80=A/A upper=R/A unspec=R/A doc=R/A"
+   },
+   {
+    "claim": "A newly accepted zoned address is stored verbatim (no normalisation), so the only change is the verdict.",
+    "verified": true,
+    "output": "ok=true stored[e575::ec0a%en0]"
+   }
+  ],
+  "signup: age was ACCEPTED, now REJECTED": [
+   {
+    "claim": "Unsafe-integer ages are accepted by zod 3 and rejected by the merged build, with the zod 4 safe-integer message.",
+    "verified": true,
+    "output": "9007199254740994=A/R 1e+21=A/R 42=A/A\nmsg=age: Too big: expected int to be <=9007199254740991"
+   },
+   {
+    "claim": "Ordinary ages are unaffected: 42 is accepted by both versions, so the tightening is confined to values past 2^53.",
+    "verified": true,
+    "output": "42=A/A 13=A/A 130=A/A"
+   }
+  ],
+  "signup: rejected by both, but different fields reported": [
+   {
+    "claim": "An invalid signup carrying a zoned IPv6 address is rejected by both versions, but the merged build no longer reports the ip field.",
+    "verified": true,
+    "output": "bothReject=true z3=email,ip now=email"
+   },
+   {
+    "claim": "An invalid signup carrying an unsafe-integer age is rejected by both versions, but the merged build additionally reports the age field.",
+    "verified": true,
+    "output": "bothReject=true z3=email now=age,email"
+   }
+  ],
+  "config: rejected by both, but different fields reported": [
+   {
+    "claim": "A config with a zoned host, a junk host and timeoutMs=Infinity is rejected by both versions but reports different fields (hosts.0 drops out, timeoutMs appears).",
+    "verified": true,
+    "output": "bothReject=true z3=hosts.0,hosts.1 now=hosts.1,timeoutMs"
+   }
+  ],
+  "signup: website accepted, but the PARSED VALUE changed": [
+   {
+    "claim": "A whitespace-padded website URL is accepted by both versions but stored with the padding by zod 3 and trimmed by the merged build.",
+    "verified": true,
+    "output": "in[ https://example.com] z3[ https://example.com] now[https://example.com]\nin[https://example.com/a?b=c ] z3[https://example.com/a?b=c ] now[https://example.com/a?b=c]"
+   },
+   {
+    "claim": "A clean URL is stored identically by both versions, so the merged build is not rewriting URLs in general - only trimming surrounding whitespace.",
+    "verified": true,
+    "output": "in[https://example.com] z3[https://example.com] now[https://example.com]\nin[https://example.com/a?b=c] z3[https://example.com/a?b=c] now[https://example.com/a?b=c]"
+   }
+  ]
+ }
+}

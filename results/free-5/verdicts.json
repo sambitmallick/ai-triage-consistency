@@ -1,0 +1,39 @@
+{
+  "groups": [
+    {
+      "heading": "config: hosts was REJECTED, now ACCEPTED",
+      "verdict": "MATTERS",
+      "why": "The compatibility shim is much broader than the zod 3 behaviour it claims to reproduce. src/schemas.ts builds `zonedIpv6` as `z.string().refine(s => '%' at >0 and <len-1 && ipv6.safeParse(part before %))`, and its comment plus review/corpus-diffs.md assert the union 'reproduces exactly the set zod 3 matched ... nothing *new* is let in'. Probed directly: zod 3's `z.string().ip()` accepted a zone suffix only on the lowercase link-local `fe80::1%<alnum>` shape -- it REJECTED `FE80::1%eth0`, `fe81::1%eth0`, `fe80:1::1%eth0`, `fe80:0:0:0:0:0:0:1%eth0`, `2001:db8::1%eth0`, `::1%eth0`, `5ac3::de2a%wlan0`. The merged build accepts all of those, plus garbage zones: `fe80::1%eth0%x`, `fe80::1%bad zone!`, `fe80::1%<script>alert(1)</script>` all now pass where zod 3 rejected them. Every example in this group is exactly that newly-admitted set (non-link-local addresses carrying a zone). So this is not 'restore old behaviour' -- it is an unintended relaxation of an address validator on 508 of 10000 inputs, letting arbitrary unvalidated text after '%' into values the service treats as IP addresses (a host list used for connections/allowlisting). Action needed before ship: tighten `zonedIpv6` (restrict to the fe80::/10 link-local form with a `[0-9A-Za-z]+` or `%25`-escaped zone, reject a second '%'), and correct the now-inaccurate claim in src/schemas.ts and review/corpus-diffs.md, since the human signed off on the strength of that claim. Judgement: the security framing is mine; the behavioural widening itself is measured, not inferred."
+    },
+    {
+      "heading": "config: timeoutMs was ACCEPTED, now REJECTED",
+      "verdict": "NOISE",
+      "why": "Probed: the only value in this group is non-finite. zod 3's `z.number().positive()` accepted Infinity; zod 4's `z.number()` rejects non-finite input ('Invalid input: expected number, received Infinity'). Finite extremes are unaffected -- `1.7976931348623157e+308` and `1e+21` still parse identically in both builds -- and `-Infinity`/`NaN` were already rejected by both, so nothing that round-trips through JSON changes behaviour. This is the same family of tightening the human already reviewed and signed off as ACCEPT NEW for `age` (zod 4 refusing numbers that cannot be used meaningfully), and an infinite timeout is degenerate rather than a plausible configured value. Judgement: I found no config corpus to bound real-world exposure (corpus/signups-2026-10-15.jsonl holds signup requests), so I am calling this on the shape of the input rather than on traffic; worth a changelog line, not a ship blocker."
+    },
+    {
+      "heading": "signup: ip was REJECTED, now ACCEPTED",
+      "verdict": "MATTERS",
+      "why": "Same root cause and same fix as the hosts group: `ip` and `hosts` share the `ipAddress` union in src/schemas.ts, so the over-broad `zonedIpv6` refine shows up on both schemas. Every example here is an address zod 3's `.ip()` rejected because it is not the lowercase `fe80::1%zone` form it special-cased (`305b:...%1`, `3d62::9037%1`, `2001:db8::ff00:42:8329%25`, `::%1`, `e575::ec0a%en0`), and my probe confirms the merged build additionally accepts zones zod 3 never allowed (`%bad zone!`, `%<script>alert(1)</script>`, `%eth0%x`). The stated intent in review/corpus-diffs.md was narrow -- keep the one real caller posting `fe80::1%eth0` -- and 357 of 10000 inputs show the implementation went well past it. A human must decide the intended zone grammar before this ships; I list it separately from the hosts group because the signup path is the externally exposed one."
+    },
+    {
+      "heading": "signup: age was ACCEPTED, now REJECTED",
+      "verdict": "NOISE",
+      "why": "Already reviewed and signed off. review/corpus-diffs.md section '[2] age' documents exactly this: zod 3's `.int()` was `Number.isInteger`, zod 4's `.int()` means *safe* integer bounded by +/-Number.MAX_SAFE_INTEGER, and the recorded decision is ACCEPT NEW with no code change. Every example in this group is above 2^53 (1e+21, 9007199254740994, 1e+30, 1152921504606847000, 1.79e+308) -- values on a float grid coarser than 1 that cannot be stored faithfully as an age, which is the reasoning the human accepted. No new information, so no new action; the doc's own suggested follow-up (give `age` a real `.max(130)`) is explicitly out of scope for this PR."
+    },
+    {
+      "heading": "signup: rejected by both, but different fields reported",
+      "verdict": "NOISE",
+      "why": "Derivative, and the externally visible verdict is unchanged: both builds reject, so every one of these inputs still gets a 400. Reading the examples, the field-list deltas are exactly the shadow of the ip and age groups -- `ip` disappears where the input carried a zoned address the merged build now accepts ('zod3 (email, ip, plan)' -> 'now (email, plan)'), and `age` appears where the value is an unsafe integer zod 4 now rejects ('zod3 (email, name, plan)' -> 'now (age, email, name, plan)'). No cause outside the groups already classified, and most of these entries disappear once the `zonedIpv6` fix lands. The review doc also notes corpus/canon.js deliberately compares verdict + parsed value + failing field rather than message text, and the verdict is identical here. Judgement: a reviewer who cares about which field is named in a 400 body should re-run this group after the ip fix."
+    },
+    {
+      "heading": "config: rejected by both, but different fields reported",
+      "verdict": "NOISE",
+      "why": "Same reasoning as the signup field-list group, on the config schema: both builds reject, so the outcome is unchanged, and the differences compose from already-classified causes -- `hosts.N` entries drop out where that element is a zoned address the merged build now accepts, and `timeoutMs` is added where the value is Infinity. The examples match that split exactly ('zod3 (hosts.1, port)' -> 'now (port)'; 'zod3 (hosts)' -> 'now (hosts, timeoutMs)'). No independent action; fixing the hosts/ip union removes the hosts half of this group."
+    },
+    {
+      "heading": "signup: website accepted, but the PARSED VALUE changed",
+      "verdict": "NOISE",
+      "why": "I probed how far zod 4's `z.url()` rewrites the value: it only strips surrounding whitespace. ' https://example.com' -> 'https://example.com', 'https://example.com\\n' -> 'https://example.com', '  \\thttps://a.co/p ' -> 'https://a.co/p'; but case, port, double slashes, '/a/../b' and non-ASCII paths are preserved byte-for-byte ('HTTP://Example.COM', 'https://example.com:443/x', 'https://example.com/a//b', 'https://example.com/\u00e9' unchanged), so there is no host lowercasing or path normalisation to reason about. All 8 cases are padded or newline-terminated URLs; the old stored value kept the padding, which is the less safe of the two (a stored URL ending in a newline is a header/log-injection hazard). Accept/reject is unchanged and the normalised form is a strict improvement. Judgement calls, flagged as such: (a) this is an output-value change, so it is not covered by the doc's blanket 'everything else is a pure API rename with no behavioural change' and deserves a changelog line; (b) if anything downstream de-duplicates on the exact stored string, old ' https://x' rows will no longer match new 'https://x' -- I found no such dependency in this repo, so I am not treating it as a blocker."
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+Can a config parsed from JSON carry Infinity?   JSON.parse('{"t":1e999}').t  ->  Infinity
+
+free-1  ok           uses 'JSON cannot express Infinity' to argue Config is built in code, so Infinity IS plausible (verdict MATTERS)
+free-2  FALSE CLAIM  "JSON cannot express Infinity, so only the fuzzer's number generator produces it"
+free-3  ok           found the 1e999 route
+free-4  FALSE CLAIM  "Infinity is not expressible in JSON, so a config loaded from env/JSON can never carry it"
+free-5  ok           -
+ev-1    ok           found the 1e999 route
+ev-2    ok           found the 1e999 route
+ev-3    FALSE CLAIM  CLAIM "JSON cannot carry Infinity" -- probe printed JSON.stringify -> null, JSON.parse('Infinity') throws, Number('1e999') -> Infinity; VERIFIED
+ev-4    ok           -
+ev-5    ok           -
+rb-1    ok           found the 1e999 route
+rb-2    ok           -
+rb-3    FALSE CLAIM  real_clients=no: "...and Infinity is not expressible in JSON"
+rb-4    FALSE CLAIM  real_clients=no: "JSON cannot carry Infinity (JSON.stringify ... emits null, probed) ... a well-behaved client cannot produce this value"
+rb-5    FALSE CLAIM  real_clients=no: "JSON cannot transport Infinity ... so only an in-process caller could supply it"
+
+free      used the false claim in 2 of 5 runs
+evidence  used the false claim in 1 of 5 runs
+rubric    used the false claim in 3 of 5 runs
+
+ev-3's claim PASSED the harness's probe check: the probe tested Number('1e999'), not JSON.parse.

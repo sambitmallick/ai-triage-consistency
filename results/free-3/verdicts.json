@@ -1,0 +1,39 @@
+{
+  "groups": [
+    {
+      "heading": "config: hosts was REJECTED, now ACCEPTED",
+      "verdict": "MATTERS",
+      "why": "Same root cause as the signup ip group, reached through the shared `ipAddress` union used by `hosts: z.array(ipAddress)`. review/corpus-diffs.md signs this off with the claim that the union 'reproduces exactly the set zod 3 matched ... so nothing *new* is let in'. The probe shows that is false. Raw zod3 `z.string().ip()`: 'fe80::1%eth0' -> true, but 'FE80::1%eth0' -> false, '2001:db8::1%eth0' -> false, '5ac3::de2a%wlan0' -> false, '::%1' -> false, 'fe80:0:0:0:0:0:0:1%eth0' -> false. zod 3 only tolerated a zone suffix on a lowercase `fe80:` link-local address with an alphanumeric zone. The merged `zonedIpv6` refine accepts ANY address that `z.ipv6()` likes plus ANY non-empty string after the first '%', so the merged build now accepts all of the above and also 'fe80::1%eth0%x', a zone that is a single space, a zone that is a bare newline, a zone of \"'; DROP TABLE users--\", and a zone of '<script>alert(1)</script>' - every one of which zod 3 rejected, and each is stored verbatim in config.hosts. This group (508) plus the signup ip group (357) is 865 of the 1795 diffs, i.e. roughly half the fuzzer's findings are this one widening. A human must act: either narrow the zone branch to zod 3's real grammar (lowercase fe80 prefix, zone matching [0-9A-Za-z]+) or consciously accept the wider set - and correct the justification in corpus-diffs.md either way. Judgement: the arbitrary-character zone is the part I would not ship, because these strings are passed on to socket/DNS/log consumers unvalidated. Note the earlier review was honest for the data it had: all 4 corpus hits were the single address 'fe80::1%eth0', so the corpus could not have exposed this."
+    },
+    {
+      "heading": "config: timeoutMs was ACCEPTED, now REJECTED",
+      "verdict": "NOISE",
+      "why": "Probe: oracle accepts Infinity (it only *serialises* as null; the stored value is Infinity), merged build rejects it with 'expected number, received Infinity'. Everything else is unchanged - NaN and -Infinity were already rejected by both, 5000 is accepted by both, 0 and -1 rejected by both, and the omitted-field default path is identical. Infinity cannot appear in a literal JSON document (JSON.stringify(Infinity) is 'null'); the only route is an overflowing numeric literal such as 1e999, which the probe confirms parses to Infinity. An infinite timeout means 'never time out', i.e. a silent hang, so zod 4 is closing a latent bug here - the same class of change the human already accepted for `age` (ACCEPT NEW). Judgement: no action required before shipping; worth one changelog line, and it is a nonsense input with no plausible legitimate caller."
+    },
+    {
+      "heading": "signup: ip was REJECTED, now ACCEPTED",
+      "verdict": "MATTERS",
+      "why": "The intended fix (keep zod 3's zoned link-local addresses working) over-shot. Probe of raw zod3 `.ip()` vs the merged build: zod 3 accepted 'fe80::1%eth0', 'fe80::1%wlan0', 'fe80::1%25' but REJECTED 'FE80::1%eth0', 'fe81::1%eth0', '2001:db8::1%eth0', '5ac3::de2a%wlan0', '::%1' and '7e60::16eb%25' - all of which the merged build now accepts, and all of which match the fuzzer's examples here. So this is not a restoration of zod 3 behaviour; it is a genuine broadening of accepted input that the fuzzer caught and the 400-request corpus could not (the corpus contained only one zoned address, 'fe80::1%eth0'). The refine also puts no character class on the zone: 'fe80::1%eth0%x', a whitespace zone, a newline zone and a zone containing SQL/HTML payloads are all accepted and stored in the `ip` field. The refine does still reject '1.2.3.4%eth0', 'notanip%eth0', '::1%' and '%eth0', so it is not wide open - but a human must decide whether the extra surface (any IPv6 family, any zone text) is wanted, and the 'nothing new is let in' sentence in review/corpus-diffs.md needs correcting. Judgement on severity: medium - it only loosens input validation, it does not break existing callers."
+    },
+    {
+      "heading": "signup: age was ACCEPTED, now REJECTED",
+      "verdict": "NOISE",
+      "why": "Already triaged and explicitly signed off as ACCEPT NEW in review/corpus-diffs.md ('zod 3 .int() was Number.isInteger; zod 4 .int() means *safe* integer'). The probe confirms the merged behaviour matches that write-up exactly and nothing beyond it: 42 and 9007199254740991 are still accepted, 9007199254740994 and 1e21 now fail with 'Too big: expected int to be <=9007199254740991', and 12 is still rejected by the unchanged .min(13). Every fuzzer example here is above 2^53, where the float grid is coarser than 1 and no value is a real age. No new action; the open follow-up from the earlier review (give `age` a real domain bound such as .max(130)) is a separate, optional change."
+    },
+    {
+      "heading": "signup: rejected by both, but different fields reported",
+      "verdict": "NOISE",
+      "why": "No caller-visible verdict changes in this group - the request is rejected with a 400 either way; only the list of field names in the error body differs. Inspecting all 8 examples, every difference is one of the two causes already handled above: 'ip' dropping out of the list (the zoned-IPv6 widening, flagged MATTERS in the signup ip group) or 'age' appearing in the list (the unsafe-integer tightening, already signed off). There is no third root cause hiding here, and no example shows a field changing for an unexplained reason. Judgement: it needs no separate action, but it is useful corroboration that the ip widening is real - fixing that group will make most of these diffs disappear too."
+    },
+    {
+      "heading": "config: rejected by both, but different fields reported",
+      "verdict": "NOISE",
+      "why": "Same shape as the signup equivalent: both builds reject, only the reported fields differ. Each of the 8 examples differs solely in hosts/hosts.N entries (the zone widening removing a failing element) or in timeoutMs appearing (the non-finite tightening) - both already covered by their own groups. No new behaviour and no change in what a caller receives beyond error-body detail, so nothing to act on here independently."
+    },
+    {
+      "heading": "signup: website accepted, but the PARSED VALUE changed",
+      "verdict": "NOISE",
+      "why": "zod 4's z.url() trims surrounding whitespace before returning the value; zod 3 returned the raw string. Probe: ' https://example.com' -> 'https://example.com', 'https://example.com' + newline -> 'https://example.com', tab-prefixed/space-suffixed -> 'https://example.com'. I checked for the two ways this could be dangerous and neither holds: (a) no verdict flips - both builds already ACCEPTED the padded forms, and 'https:// example.com', 'https://exa mple.com', ' ' and '  not a url  ' are still rejected by both; (b) no other rewriting - case ('https://EXAMPLE.com/A B'), dot segments ('/a/../b') and query strings are preserved byte-for-byte, so this is whitespace trimming only, not full URL normalisation. 8 of 10000 inputs. Judgement: this is a strict improvement, since a stored URL with a leading space or trailing newline is already broken for any downstream fetch or href; the only thing worth a glance is that if stored URLs are used as a uniqueness or dedupe key, rows that were previously distinct could now collide."
+    }
+  ]
+}

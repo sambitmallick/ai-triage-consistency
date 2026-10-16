@@ -1,0 +1,97 @@
+{
+ "computed": {
+  "config: hosts was REJECTED, now ACCEPTED": "MATTERS",
+  "config: timeoutMs was ACCEPTED, now REJECTED": "NOISE",
+  "signup: ip was REJECTED, now ACCEPTED": "MATTERS",
+  "signup: age was ACCEPTED, now REJECTED": "SIGNED OFF",
+  "signup: rejected by both, but different fields reported": "NOISE",
+  "config: rejected by both, but different fields reported": "NOISE",
+  "signup: website accepted, but the PARSED VALUE changed": "MATTERS"
+ },
+ "claims": {
+  "config: hosts was REJECTED, now ACCEPTED": [
+   {
+    "claim": "The merged build accepts a config host with an IPv6 zone index that zod 3 rejected (2459::52d2%lo0).",
+    "verified": true,
+    "output": "G508 oracle=false main=true"
+   },
+   {
+    "claim": "zod 3 accepted a %zone suffix only on fe80: link-local addresses, so the merged refine accepts strictly more than zod 3 (the doc's 'nothing new is let in' is wrong).",
+    "verified": true,
+    "output": "G508b zod3 fe80=true zod3 lo0=false zod3 global=false\nG508b main fe80=true main lo0=true"
+   }
+  ],
+  "config: timeoutMs was ACCEPTED, now REJECTED": [
+   {
+    "claim": "zod 3 accepts and stores timeoutMs=Infinity; the merged build rejects it.",
+    "verified": true,
+    "output": "G463 oracle=true main=false oracle_stored_infinite=true\nG463 main_problem=timeoutMs: Invalid input: expected number, received Infinity"
+   },
+   {
+    "claim": "The rejection is zod 4's finiteness check on z.number(), and Infinity is not representable in JSON, so a JSON client cannot send it.",
+    "verified": true,
+    "output": "G463c main_problem=timeoutMs: Invalid input: expected number, received Infinity\nG463c json={\"timeoutMs\":null}"
+   }
+  ],
+  "signup: ip was REJECTED, now ACCEPTED": [
+   {
+    "claim": "The merged build accepts signup ip=3d62::9037%1, which zod 3 rejects.",
+    "verified": true,
+    "output": "G357 oracle=false main=true"
+   },
+   {
+    "claim": "The widening is not limited to meaningful link-local input: '::%1' is newly accepted, while the signed-off fe80::1%eth0 case is accepted by both versions.",
+    "verified": true,
+    "output": "G357b empty_addr oracle=false main=true | fe80 oracle=true main=true"
+   }
+  ],
+  "signup: age was ACCEPTED, now REJECTED": [
+   {
+    "claim": "age=1e+21 is accepted by zod 3 and rejected by the merged build with the safe-integer upper bound message.",
+    "verified": true,
+    "output": "G324 oracle=true main=false problem=age: Too big: expected int to be <=9007199254740991"
+   },
+   {
+    "claim": "The other examples are the same change: every rejected value exceeds Number.MAX_SAFE_INTEGER.",
+    "verified": true,
+    "output": "G324b oracle/main/over_msi: [true/false/true] [true/false/true] [true/false/true] [true/false/true]"
+   }
+  ],
+  "signup: rejected by both, but different fields reported": [
+   {
+    "claim": "A multi-field-invalid signup is rejected by both versions but with different reported fields (oracle email,ip vs merged age,email).",
+    "verified": true,
+    "output": "G88 oracle=email,ip main=age,email"
+   },
+   {
+    "claim": "Both versions reject the input, so there is no verdict change and no parsed value to compare.",
+    "verified": true,
+    "output": "G88b oracle_ok=false main_ok=false"
+   }
+  ],
+  "config: rejected by both, but different fields reported": [
+   {
+    "claim": "A config invalid in several places is rejected by both versions with different reported fields (oracle hosts.0,hosts.1 vs merged hosts.1,timeoutMs).",
+    "verified": true,
+    "output": "G47 oracle=hosts.0,hosts.1 main=hosts.1,timeoutMs"
+   },
+   {
+    "claim": "Both versions reject it, so the difference is only in which fields are named.",
+    "verified": true,
+    "output": "G47b oracle_ok=false main_ok=false"
+   }
+  ],
+  "signup: website accepted, but the PARSED VALUE changed": [
+   {
+    "claim": "A leading-space URL is accepted by both versions but stored trimmed by the merged build (20 chars -> 19).",
+    "verified": true,
+    "output": "G8 both_ok=true oracle_len=20 main_len=19 main_trimmed=true"
+   },
+   {
+    "claim": "Same for a trailing newline; the merged build stores the bare origin with no trailing slash, i.e. the change is a whitespace trim.",
+    "verified": true,
+    "output": "G8b both_ok=true oracle_len=20 main_len=19 main_eq=true"
+   }
+  ]
+ }
+}

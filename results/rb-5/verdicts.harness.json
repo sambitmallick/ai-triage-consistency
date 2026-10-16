@@ -1,0 +1,122 @@
+{
+ "computed": {
+  "config: hosts was REJECTED, now ACCEPTED": "MATTERS",
+  "config: timeoutMs was ACCEPTED, now REJECTED": "NOISE",
+  "signup: ip was REJECTED, now ACCEPTED": "MATTERS",
+  "signup: age was ACCEPTED, now REJECTED": "SIGNED OFF",
+  "signup: rejected by both, but different fields reported": "NOISE",
+  "config: rejected by both, but different fields reported": "NOISE",
+  "signup: website accepted, but the PARSED VALUE changed": "MATTERS"
+ },
+ "claims": {
+  "config: hosts was REJECTED, now ACCEPTED": [
+   {
+    "claim": "A zoned non-link-local host (2459::52d2%lo0) is rejected by the zod 3 oracle and accepted by the merged build, while the zoned link-local host that the review signed off is accepted by both - so this diff is a pure loosening, not the restoration.",
+    "verified": true,
+    "output": "hosts-zoned-global oracle=false main=true\nhosts-zoned-linklocal oracle=true main=true"
+   },
+   {
+    "claim": "zod 3's z.string().ip() accepted a %zone only on fe80:: addresses: true for fe80::1%eth0, false for 2001:db8::ff00:42:8329%wlan0 and 2459::52d2%lo0.",
+    "verified": true,
+    "output": "z3-zone fe80=true global=false lo0=false"
+   },
+   {
+    "claim": "The merged build accepts a hosts array containing a zoned global address that the zod 3 oracle rejected.",
+    "verified": true,
+    "output": "main-hosts-accepts=true\noracle-hosts-accepts=false"
+   }
+  ],
+  "config: timeoutMs was ACCEPTED, now REJECTED": [
+   {
+    "claim": "timeoutMs = Infinity is accepted by the zod 3 oracle and rejected by the merged build, while a finite timeout and the default are unchanged.",
+    "verified": true,
+    "output": "timeout-inf oracle-ok=true main-ok=false\ntimeout-finite oracle-ok=true main-ok=true\ntimeout-default oracle=5000 main=5000"
+   },
+   {
+    "claim": "JSON cannot transport Infinity, so an over-the-wire config cannot produce this input: JSON.stringify turns it into null and JSON.parse of Infinity throws.",
+    "verified": true,
+    "output": "json-infinity parse-throws=true stringify-null=true"
+   },
+   {
+    "claim": "NaN was already rejected by both versions, so the new finiteness rule only changes the Infinity case.",
+    "verified": true,
+    "output": "timeout-nan oracle-ok=false main-ok=false"
+   }
+  ],
+  "signup: ip was REJECTED, now ACCEPTED": [
+   {
+    "claim": "signup ip = '3d62::9037%1' (zoned, non-link-local) is rejected by the zod 3 oracle and accepted by the merged build.",
+    "verified": true,
+    "output": "ip 3d62::9037%1 oracle=false main=true\nip ::%1 oracle=false main=true\nip 2001:db8::ff00:42:8329%25 oracle=false main=true\nip fe80::1%eth0 oracle=true main=true\nip 1.2.3.4 oracle=true main=true"
+   },
+   {
+    "claim": "The merged build even accepts a zone on the unspecified address ('::%1'), which zod 3 rejected.",
+    "verified": true,
+    "output": "ip ::%1 oracle=false main=true"
+   },
+   {
+    "claim": "The signed-off case (zoned link-local fe80::1%eth0) is accepted by BOTH versions, so it is not what this diff group is about.",
+    "verified": true,
+    "output": "ip fe80::1%eth0 oracle=true main=true"
+   }
+  ],
+  "signup: age was ACCEPTED, now REJECTED": [
+   {
+    "claim": "age = 1e+21 is accepted by the zod 3 oracle and rejected by the merged build.",
+    "verified": true,
+    "output": "age 1e+21 oracle=true main=false\nage 9007199254740994 oracle=true main=false\nage 30 oracle=true main=true"
+   },
+   {
+    "claim": "The rejection is the zod 4 safe-integer bound, and it also hits 9007199254740994 (MAX_SAFE_INTEGER+3), the value class the signed-off review lists as #204.",
+    "verified": true,
+    "output": "age 9007199254740994 oracle=true main=false\nage-msg age: Too big: expected int to be <=9007199254740991"
+   },
+   {
+    "claim": "Ordinary ages are unaffected: age = 30 is accepted by both versions.",
+    "verified": true,
+    "output": "age 30 oracle=true main=true"
+   }
+  ],
+  "signup: rejected by both, but different fields reported": [
+   {
+    "claim": "An input rejected by both versions (bad email) loses 'ip' from the merged build's reported fields because main now accepts the zoned address.",
+    "verified": true,
+    "output": "fields-a both-reject=true oracle-ip=true main-ip=false\nfields-a-problems oracle=email: Invalid email | ip: Invalid ip main=email: Invalid email address"
+   },
+   {
+    "claim": "The same kind of input gains 'age' in the merged build's field list when age is an unsafe integer, with both versions still rejecting.",
+    "verified": true,
+    "output": "fields-b both-reject=true oracle-age=false main-age=true"
+   }
+  ],
+  "config: rejected by both, but different fields reported": [
+   {
+    "claim": "One config rejected by both shows both drivers at once: the oracle reports hosts.1 (zoned host) and not timeoutMs, while the merged build reports timeoutMs and not hosts.1.",
+    "verified": true,
+    "output": "cfg-both both-reject=true oracle-hosts1=true main-hosts1=false oracle-timeoutMs=false main-timeoutMs=true\ncfg-problems oracle=hosts.0: Invalid ip | hosts.1: Invalid ip main=hosts.0: Invalid input | timeoutMs: Invalid input: expected number, received Infinity"
+   },
+   {
+    "claim": "Both versions still reject that config, i.e. this group contains no accept/reject flip.",
+    "verified": true,
+    "output": "cfg-verdicts oracle-ok=false main-ok=false"
+   }
+  ],
+  "signup: website accepted, but the PARSED VALUE changed": [
+   {
+    "claim": "website = ' https://example.com' is accepted by both versions but stored with the leading space by zod 3 and trimmed by the merged build.",
+    "verified": true,
+    "output": "url-pad oracle-ok=true main-ok=true oracle=[ https://example.com] main=[https://example.com]"
+   },
+   {
+    "claim": "A trailing newline behaves the same way and both versions accept the input, so this is a stored-value difference rather than a verdict difference: the oracle keeps 20 characters, main stores 19.",
+    "verified": true,
+    "output": "url-nl oracle-ok=true main-ok=true oracle-len=20 main-len=19"
+   },
+   {
+    "claim": "URLs without surrounding whitespace are stored identically by both versions, so the change is limited to padded input.",
+    "verified": true,
+    "output": "url-plain same=true value=https://example.com/a?b=1"
+   }
+  ]
+ }
+}

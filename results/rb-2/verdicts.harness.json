@@ -1,0 +1,102 @@
+{
+ "computed": {
+  "config: hosts was REJECTED, now ACCEPTED": "MATTERS",
+  "config: timeoutMs was ACCEPTED, now REJECTED": "MATTERS",
+  "signup: ip was REJECTED, now ACCEPTED": "MATTERS",
+  "signup: age was ACCEPTED, now REJECTED": "SIGNED OFF",
+  "signup: rejected by both, but different fields reported": "NOISE",
+  "config: rejected by both, but different fields reported": "NOISE",
+  "signup: website accepted, but the PARSED VALUE changed": "MATTERS"
+ },
+ "claims": {
+  "config: hosts was REJECTED, now ACCEPTED": [
+   {
+    "claim": "config.hosts entries that zod 3 rejected (zoned IPv6) are accepted by the merged build.",
+    "verified": true,
+    "output": "H1 REJECT ACCEPT\nH2 REJECT ACCEPT"
+   },
+   {
+    "claim": "zod 3's z.string().ip() accepted a zone index only on fe80 link-local addresses with a clean zone, so the merged union lets in addresses zod 3 never matched.",
+    "verified": true,
+    "output": "Z3 fe80=true other=false badzone=false"
+   },
+   {
+    "claim": "The merged build even accepts a host with a malformed double zone separator that zod 3 rejected.",
+    "verified": true,
+    "output": "H3 REJECT ACCEPT"
+   }
+  ],
+  "config: timeoutMs was ACCEPTED, now REJECTED": [
+   {
+    "claim": "config timeoutMs = Infinity is accepted by the pre-upgrade code and rejected by the merged build, while a normal timeout is accepted by both.",
+    "verified": true,
+    "output": "T1 ACCEPT REJECT\nT2 ACCEPT ACCEPT"
+   },
+   {
+    "claim": "The cause is the library, not the merged schema: zod 3 number().positive() accepts Infinity, zod 4 does not.",
+    "verified": true,
+    "output": "POS z3=true z4=false"
+   }
+  ],
+  "signup: ip was REJECTED, now ACCEPTED": [
+   {
+    "claim": "signup.ip values rejected before the upgrade are now accepted.",
+    "verified": true,
+    "output": "I1 REJECT ACCEPT\nI2 REJECT ACCEPT\nI3 ACCEPT ACCEPT"
+   },
+   {
+    "claim": "The fe80 case the human signed off is accepted by both builds, so this loosening is extra breadth beyond the signed-off restoration - including a garbage zone.",
+    "verified": true,
+    "output": "I3 ACCEPT ACCEPT\nI4 REJECT ACCEPT"
+   }
+  ],
+  "signup: age was ACCEPTED, now REJECTED": [
+   {
+    "claim": "age = 9007199254740992 and 1e+21 were accepted before the upgrade and are rejected now, matching the values in signed-off section [2]; a normal age is unaffected.",
+    "verified": true,
+    "output": "A991 ACCEPT ACCEPT\nA992 ACCEPT REJECT\nA1e21 ACCEPT REJECT\nA30 ACCEPT ACCEPT"
+   },
+   {
+    "claim": "The cutoff is the safe-integer boundary, not a new domain rule: 9007199254740991 still passes in both builds.",
+    "verified": true,
+    "output": "A991 ACCEPT ACCEPT"
+   }
+  ],
+  "signup: rejected by both, but different fields reported": [
+   {
+    "claim": "An input rejected by both builds reports different field sets, with 'ip' vanishing because the newly accepted zoned address no longer fails.",
+    "verified": true,
+    "output": "G5a o=email,ip m=email"
+   },
+   {
+    "claim": "The other direction (an extra field appearing) comes from the signed-off age tightening; both builds still reject, so no verdict changes.",
+    "verified": true,
+    "output": "G5b o=email m=age,email"
+   }
+  ],
+  "config: rejected by both, but different fields reported": [
+   {
+    "claim": "A config rejected by both builds reports different fields: a zoned host stops being flagged while timeoutMs = Infinity starts being flagged.",
+    "verified": true,
+    "output": "G6 o=hosts.0,hosts.1 m=hosts.1,timeoutMs"
+   },
+   {
+    "claim": "Both builds still reject that config, so this group contains no verdict change and no stored value.",
+    "verified": true,
+    "output": "G6ok oracle_ok=false main_ok=false"
+   }
+  ],
+  "signup: website accepted, but the PARSED VALUE changed": [
+   {
+    "claim": "A website with a leading space is accepted by both builds but stored with the space before the upgrade and trimmed after it.",
+    "verified": true,
+    "output": "W1 o=[ https://example.com] m=[https://example.com]"
+   },
+   {
+    "claim": "A trailing newline is likewise dropped from the stored value (20 characters before, 19 after), with both builds accepting.",
+    "verified": true,
+    "output": "W2 olen=20 mlen=19\nW2ok o=true m=true"
+   }
+  ]
+ }
+}

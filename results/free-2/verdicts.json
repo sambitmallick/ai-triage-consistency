@@ -1,0 +1,39 @@
+{
+  "groups": [
+    {
+      "heading": "config: hosts was REJECTED, now ACCEPTED",
+      "verdict": "MATTERS",
+      "why": "The compatibility shim is wider than the thing it claims to restore. src/schemas.ts replaces zod 3's .ip() with z.union([z.ipv4(), ipv6, zonedIpv6]), and zonedIpv6 accepts ANY valid IPv6 address followed by ANY non-empty zone string. Probe evidence: zod 3's v6 check only accepted a %zone on fe80::/10 addresses in compressed lowercase form ('fe80::1%eth0' -> true, but '2001:db8::1%eth0', '::1%eth0', '::%1', 'FE80::1%eth0' and 'fe80:0:0:0:0:0:0:1%eth0' -> false), while the merged build accepts all of them. That directly contradicts review/corpus-diffs.md, which was signed off on the claim that the union 'reproduces exactly the set zod 3 matched ... nothing new is let in' - the corpus only ever contained one address, fe80::1%eth0, so it could not detect the over-widening. Worse, the zone text is never validated: probe shows hosts now accepts '2001:db8::1%../../etc/passwd', 'fe80::1% ', 'fe80::1%a b', 'fe80::1%eth0%eth1', 'fe80::1%%', and (on the same shim via ip) 'fe80::1%; rm -rf /', 'fe80::1%<script>' and 'fe80::1%eth0\r\nX-Admin: 1'. hosts is a list of connection targets, so strings carrying CRLF, spaces, shell and path-traversal metacharacters that used to get a clean 400 at the boundary now flow downstream. Judgement: a human must tighten zonedIpv6 (e.g. require the address part to be link-local fe80::/10 and the zone to match /^[A-Za-z0-9._-]+$/, which is what zod 3 effectively allowed) and correct the sign-off doc before this ships."
+    },
+    {
+      "heading": "config: timeoutMs was ACCEPTED, now REJECTED",
+      "verdict": "NOISE",
+      "why": "Every example is the single value Infinity. Probe confirms the whole difference: zod 3 accepted Infinity for z.number().positive() (it only failed the >0 test for -Infinity), while zod 4's z.number() rejects non-finite numbers outright ('Invalid input: expected number, received Infinity'). NaN and -Infinity are rejected by both, only the message wording differs. This is a tightening in the same family as the age change the corpus review already accepted: an infinite request timeout is not a usable config value, it is a hang. It is also not reachable from the documented input path - Config is described as coming from environment variables / JSON, and JSON cannot express Infinity, so only the fuzzer's number generator produces it (the 463 count is generator bias, not production frequency). Judgement: no action needed; worth one line in the changelog, not a code change."
+    },
+    {
+      "heading": "signup: ip was REJECTED, now ACCEPTED",
+      "verdict": "MATTERS",
+      "why": "Same root cause as the hosts group, on the signup boundary. Probe: zod 3 accepted a zone suffix only on fe80::/10 link-local addresses, so '305b:...:69ae%1', '2001:db8::ff00:42:8329%wlan0', '::%1', 'b87e:...%en0' were all rejected by zod 3 and are accepted now - exactly the examples listed. The shim also accepts arbitrary zone payloads that zod 3 rejected: probe shows signup now stores ip='fe80::1%../../etc/passwd', 'fe80::1%; rm -rf /', 'fe80::1%<script>', 'fe80::1%\r\nX-Admin: 1', 'fe80::1% x', 'fe80::1%%' and 'fe80::1%eth0%eth1'. So the stored ip field - which a log line, an allow-list check or an outbound header may later consume - can now contain CRLF and shell/path metacharacters that previously could not get past validation. The signed-off review asserts the opposite ('nothing new is let in'), so the approval does not cover this. Judgement: fix zonedIpv6 (restrict the address part and character-class the zone) before shipping; the only cases that must keep working are real link-local addresses like fe80::1%eth0, which already pass today."
+    },
+    {
+      "heading": "signup: age was ACCEPTED, now REJECTED",
+      "verdict": "NOISE",
+      "why": "This is precisely the change review/corpus-diffs.md analysed and marked ACCEPT NEW: zod 3's .int() was Number.isInteger(), zod 4's .int() additionally bounds by +/-Number.MAX_SAFE_INTEGER. Every example here is above 2^53 (1e21, 9007199254740994, 1e30, 1.7976931348623157e308, 1152921504606847000), i.e. values that are not ages and whose arithmetic is already lossy at that magnitude. The merged code deliberately left z.number().int() unshimmed, consistent with that decision. Judgement: no action; the already-recorded follow-up (give age a real .max(130) domain bound in a separate change) still stands but is not a blocker."
+    },
+    {
+      "heading": "signup: rejected by both, but different fields reported",
+      "verdict": "NOISE",
+      "why": "Not an independent defect - it is bookkeeping from the two signup root causes. In every example the two field lists differ only by 'ip' disappearing (the widened zone shim now accepts an address zod 3 rejected) and/or 'age' appearing (the accepted unsafe-integer tightening). Positive check: with ip valid and age absent/valid, the probe ran broken-everything, missing-everything, wrong-types, over-length-name and bad-plan payloads and zod 3 and the merged build reported identical field sets every time, so no other field's reporting changed. The caller-visible verdict is REJECT in both builds, only the issue list shifts. Judgement: no separate action; fixing the ip shim removes the 'ip' half of this group automatically, and the 'age' half is already accepted."
+    },
+    {
+      "heading": "config: rejected by both, but different fields reported",
+      "verdict": "NOISE",
+      "why": "Same shape as the signup equivalent, driven entirely by the hosts zone widening (a hosts.N entry drops off the list) and the Infinity tightening (timeoutMs joins the list). Probe control: with hosts valid and timeoutMs finite, zod 3 and the merged build reported identical field sets for bad port, empty hosts, non-array hosts and string timeoutMs. The request is rejected either way, so there is no change in what a client sees beyond which issues are itemised. Judgement: no separate action; it resolves with the hosts fix and the accepted Infinity behaviour."
+    },
+    {
+      "heading": "signup: website accepted, but the PARSED VALUE changed",
+      "verdict": "NOISE",
+      "why": "zod 4's z.url() parses through the URL constructor and therefore returns a normalised string, so surrounding whitespace is stripped. Probe shows the normalisation is limited to that: ' https://example.com', '\\thttps://example.com', 'https://example.com\\n' and 'https://example.com/p?q=1 ' get trimmed, while host case ('https://EXAMPLE.com'), trailing slash presence/absence and dot segments ('/x/../y') are all preserved byte-for-byte, and genuinely malformed URLs are rejected by both builds. The URL that comes out points at the same resource as the one that went in, and dropping a stored trailing newline is if anything the safer outcome (a URL with an embedded newline is a header-injection hazard if it is ever echoed into a Location header). Blast radius is 8 of 10000, all whitespace-padded inputs. Judgement: no action needed before shipping; the only residual risk is downstream code doing an exact-string comparison against the raw submission, which I have no evidence of in this repo - worth a changelog line."
+    }
+  ]
+}

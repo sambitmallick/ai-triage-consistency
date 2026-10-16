@@ -1,0 +1,195 @@
+{
+  "groups": [
+    {
+      "heading": "config: hosts was REJECTED, now ACCEPTED",
+      "answers": {
+        "verdict_changes": true,
+        "direction": "looser",
+        "stored_value_changes": false,
+        "already_signed_off": false,
+        "real_clients": "no",
+        "why": "Reproduced: config {hosts:['2459::52d2%lo0']} is rejected by the zod 3 oracle (hosts.0) and accepted by the merged build, so the verdict flips in the looser direction. Root cause is in src/schemas.ts: zod 3's z.string().ip() only accepted a %zone suffix on fe80:: link-local addresses (probe: fe80::1%eth0 -> [oracle true, now true]; 5ac3::de2a%wlan0 -> [oracle false, now true]), but the replacement zonedIpv6 refine accepts a zone on ANY string z.ipv6() can parse. review/corpus-diffs.md signed off the OPPOSITE direction (restoring fe80::1%eth0, which now produces no diff at all) and explicitly asserts the union 'reproduces exactly the set zod 3 matched ... so nothing *new* is let in' - the fuzzer shows that assertion is wrong, so this widening is not covered by the sign-off. stored_value_changes is false: these inputs were not accepted by both, and the newly accepted ones are stored verbatim. real_clients 'no' is a judgement: a zone index is only meaningful for link-local addresses (and the one recorded caller used fe80::1%eth0), so I would not expect a well-behaved client to post 5ac3::de2a%wlan0. Judgement on impact: hosts are addresses the service will dial, so silently admitting malformed ones is an unreviewed loosening a human should either narrow (restrict the zone branch to fe80::/10) or sign off deliberately."
+      },
+      "claims": [
+        {
+          "claim": "A zoned non-link-local host is rejected by zod 3 and accepted by the merged build (verdict flip, looser).",
+          "probe": "const c={hosts:['2459::52d2%lo0']};\nconst o=oracle.parseConfig(c), m=main.parseConfig(c);\nprint('oracle='+o.ok+' main='+m.ok);",
+          "expect": "oracle=false main=true"
+        },
+        {
+          "claim": "zod 3 only allowed a %zone on fe80:: addresses; the merged refine allows it on any IPv6. The signed-off fe80 address now shows no difference at all.",
+          "probe": "const f=(h)=>'['+oracle.parseConfig({hosts:[h]}).ok+','+main.parseConfig({hosts:[h]}).ok+']';\nprint('fe80='+f('fe80::1%eth0')+' global='+f('5ac3::de2a%wlan0'));",
+          "expect": "fe80=[true,true] global=[false,true]"
+        },
+        {
+          "claim": "The same flip happens when the zoned address is one element of a longer host list.",
+          "probe": "const c={hosts:['96.87.107.24','a644::8654%eth0']};\nprint('o='+oracle.parseConfig(c).ok+' m='+main.parseConfig(c).ok);",
+          "expect": "o=false m=true"
+        }
+      ]
+    },
+    {
+      "heading": "config: timeoutMs was ACCEPTED, now REJECTED",
+      "answers": {
+        "verdict_changes": true,
+        "direction": "stricter",
+        "stored_value_changes": false,
+        "already_signed_off": false,
+        "real_clients": "no",
+        "why": "Reproduced: timeoutMs=Infinity is accepted by the zod 3 oracle (stored as Infinity) and rejected by the merged build with 'timeoutMs: Invalid input: expected number, received Infinity' - a verdict flip in the stricter direction. NaN was already rejected by both, so what is new is specifically zod 4's finiteness requirement in z.number(). review/corpus-diffs.md says nothing about timeoutMs or non-finite numbers anywhere (its only numeric sign-off is the age safe-integer item), so this change is unreviewed. stored_value_changes false - the input is no longer accepted, so there is no shared accepted value. real_clients 'no' is a judgement: Infinity has no JSON representation (JSON.stringify(Infinity) === 'null') and the doc comment calls Config env-derived, so the only route is an in-process overflow such as Number('1e999'), which is a caller bug. Judgement on impact: low risk, but it is a boot-time failure mode (a service that previously started with an infinite timeout now fails config validation), so it deserves the same explicit recording the age change got rather than arriving unnoticed."
+      },
+      "claims": [
+        {
+          "claim": "timeoutMs=Infinity: zod 3 accepts and stores Infinity; the merged build rejects it on the timeoutMs field.",
+          "probe": "const c={hosts:['1.2.3.4'],timeoutMs:Infinity};\nconst o=oracle.parseConfig(c), m=main.parseConfig(c);\nprint('o_ok='+o.ok+' stored='+String(o.value&&o.value.timeoutMs)+' m_ok='+m.ok+' m_problems='+(m.problems||[]).join('|'));",
+          "expect": "o_ok=true stored=Infinity m_ok=false"
+        },
+        {
+          "claim": "NaN was already rejected by both versions, so the new rejection is specifically about non-finite (infinite) numbers; and Infinity is not expressible in JSON.",
+          "probe": "const c={hosts:['1.2.3.4'],timeoutMs:NaN};\nprint('nan_o='+oracle.parseConfig(c).ok+' nan_m='+main.parseConfig(c).ok+' jsonInfinity='+JSON.stringify(Infinity));",
+          "expect": "nan_o=false nan_m=false jsonInfinity=null"
+        }
+      ]
+    },
+    {
+      "heading": "signup: ip was REJECTED, now ACCEPTED",
+      "answers": {
+        "verdict_changes": true,
+        "direction": "looser",
+        "stored_value_changes": false,
+        "already_signed_off": false,
+        "real_clients": "no",
+        "why": "Same root cause as the config hosts group, on the signup.ip field. Reproduced: ip='2001:db8::ff00:42:8329%25' is rejected by the zod 3 oracle and accepted now; so are '::%1' and '3d62::9037%1'. zod 3's z.string().ip() accepted a %zone only on fe80:: link-local addresses (fe80::1%eth0 -> [true,true] in both versions, i.e. the signed-off case now produces no diff), whereas src/schemas.ts's zonedIpv6 refine accepts any z.ipv6()-parsable address plus any non-empty zone. review/corpus-diffs.md section [4] signed off restoring fe80::1%eth0 (zod 3 accepted, zod 4 rejected) and claimed 'nothing *new* is let in'; these diffs are the reverse direction and show the restore over-shot, so they are not the signed-off change. stored_value_changes false: newly accepted addresses are stored verbatim, and no input is accepted by both with a different value. real_clients 'no' is a judgement - a zone index is only meaningful on link-local addresses. Judgement on impact: the stored ip field now accepts strings that are not valid addresses anywhere (e.g. '::%1'), which anything downstream that re-parses the ip may choke on, and it contradicts an explicit sign-off claim, so a human should decide the intended set before shipping."
+      },
+      "claims": [
+        {
+          "claim": "A zoned non-link-local signup ip is rejected by zod 3 and accepted by the merged build.",
+          "probe": "const B={id:'123e4567-e89b-12d3-a456-426614174000',email:'a@b.com',name:'x',ip:'1.2.3.4',plan:'free',flags:{}};\nconst mk=(o)=>Object.assign({},B,o);\nconst bad=mk({ip:'2001:db8::ff00:42:8329%25'});\nprint('o='+oracle.parseSignup(bad).ok+' m='+main.parseSignup(bad).ok);",
+          "expect": "o=false m=true"
+        },
+        {
+          "claim": "The signed-off fe80 case agrees in both versions, while non-link-local zoned addresses (including '::%1') are newly accepted - the widening is broader than what was signed off.",
+          "probe": "const B={id:'123e4567-e89b-12d3-a456-426614174000',email:'a@b.com',name:'x',ip:'1.2.3.4',plan:'free',flags:{}};\nconst mk=(o)=>Object.assign({},B,o);\nconst f=(ip)=>'['+oracle.parseSignup(mk({ip:ip})).ok+','+main.parseSignup(mk({ip:ip})).ok+']';\nprint('fe80='+f('fe80::1%eth0')+' zero='+f('::%1')+' global='+f('3d62::9037%1'));",
+          "expect": "fe80=[true,true] zero=[false,true] global=[false,true]"
+        },
+        {
+          "claim": "Newly accepted zoned addresses are stored verbatim (the change is about the verdict, not the parsed value).",
+          "probe": "const B={id:'123e4567-e89b-12d3-a456-426614174000',email:'a@b.com',name:'x',ip:'1.2.3.4',plan:'free',flags:{}};\nconst m=main.parseSignup(Object.assign({},B,{ip:'e575::ec0a%en0'}));\nprint('m_ok='+m.ok+' stored_same='+(m.value.ip==='e575::ec0a%en0'));",
+          "expect": "m_ok=true stored_same=true"
+        }
+      ]
+    },
+    {
+      "heading": "signup: age was ACCEPTED, now REJECTED",
+      "answers": {
+        "verdict_changes": true,
+        "direction": "stricter",
+        "stored_value_changes": false,
+        "already_signed_off": true,
+        "real_clients": "no",
+        "why": "Reproduced: age = 9007199254740994, 1e21 and 1e30 are all accepted by the zod 3 oracle and rejected by the merged build with 'Too big: expected int to be <=9007199254740991'; ordinary ages and MAX_SAFE_INTEGER itself are unaffected ([true,true]). Verdict flip, stricter, nothing stored differently. This is exactly the change review/corpus-diffs.md section '[2] age' describes (zod 3's .int() was Number.isInteger, zod 4's .int() means safe integer and bounds by +/-Number.MAX_SAFE_INTEGER), marked 'ACCEPT NEW - left as zod 4 behaves; no code change', with 1e+21 (#38) and 9007199254740992 (#204) as the affected requests; every fuzzer example here is the same class of value above 2^53, so the sign-off covers them. real_clients 'no' is a judgement shared with the doc: none of these are plausible ages, and above 2^53 the float grid is coarser than 1 so such a value cannot be stored faithfully anyway. The doc's follow-up (give age a real .max(130)) remains open but is a separate, intentional change rather than something this PR must do."
+      },
+      "claims": [
+        {
+          "claim": "Unsafe-integer ages (9007199254740994, 1e21, 1e30) are accepted by zod 3 and rejected by the merged build.",
+          "probe": "const B={id:'123e4567-e89b-12d3-a456-426614174000',email:'a@b.com',name:'x',ip:'1.2.3.4',plan:'free',flags:{}};\nconst mk=(o)=>Object.assign({},B,o);\nconst a=(v)=>'['+oracle.parseSignup(mk({age:v})).ok+','+main.parseSignup(mk({age:v})).ok+']';\nprint('n9007199254740994='+a(9007199254740994)+' e21='+a(1e21)+' e30='+a(1e30));",
+          "expect": "n9007199254740994=[true,false] e21=[true,false] e30=[true,false]"
+        },
+        {
+          "claim": "The new rejection is the safe-integer bound described in corpus-diffs.md section [2] (message names 9007199254740991).",
+          "probe": "const B={id:'123e4567-e89b-12d3-a456-426614174000',email:'a@b.com',name:'x',ip:'1.2.3.4',plan:'free',flags:{}};\nconst r=main.parseSignup(Object.assign({},B,{age:9007199254740994}));\nprint('msg='+r.problems.join('|'));",
+          "expect": "Too big: expected int to be <=9007199254740991"
+        },
+        {
+          "claim": "Real ages, and MAX_SAFE_INTEGER itself, are unaffected - only values past 2^53 changed answer.",
+          "probe": "const B={id:'123e4567-e89b-12d3-a456-426614174000',email:'a@b.com',name:'x',ip:'1.2.3.4',plan:'free',flags:{}};\nconst mk=(o)=>Object.assign({},B,o);\nconst a=(v)=>'['+oracle.parseSignup(mk({age:v})).ok+','+main.parseSignup(mk({age:v})).ok+']';\nprint('age13='+a(13)+' max_safe='+a(9007199254740991));",
+          "expect": "age13=[true,true] max_safe=[true,true]"
+        }
+      ]
+    },
+    {
+      "heading": "signup: rejected by both, but different fields reported",
+      "answers": {
+        "verdict_changes": false,
+        "direction": "none",
+        "stored_value_changes": false,
+        "already_signed_off": false,
+        "real_clients": "unknown",
+        "why": "Every input in this group is rejected by both versions (probe: both1=true both2=true), so no input flips verdict and nothing is stored - the only difference is which fields appear in the error list. I reproduced both causes: (a) a zoned non-fe80 IP makes 'ip' drop out of the reported fields (oracle 'ip,plan' -> now 'plan'), which is the unreviewed widening of the ip/hosts groups; (b) an unsafe-integer age makes 'age' appear (oracle 'plan' -> now 'age,plan'), which is the signed-off age tightening. already_signed_off=false because the group mixes the signed-off age item with the ip widening that corpus-diffs.md explicitly claimed could not happen; the field-list difference itself is not discussed in that document (it notes only that error *wording* is deliberately not compared, while corpus/canon.js does key on the failing field). real_clients 'unknown' is a judgement: these specific examples are multi-error fuzz payloads a well-behaved client would not send, but real requests do trip several field errors at once. Judgement on impact: by itself this group is a reporting-detail change (the caller still gets a rejection), so it needs no separate action - it is a symptom whose action item lives in the ip and hosts groups."
+      },
+      "claims": [
+        {
+          "claim": "Cause (a): with a zoned non-fe80 ip plus a bad plan, zod 3 reports ip and plan while the merged build reports only plan.",
+          "probe": "const B={id:'123e4567-e89b-12d3-a456-426614174000',email:'a@b.com',name:'x',ip:'1.2.3.4',plan:'free',flags:{}};\nconst f=(r)=>r.ok?'ACCEPT':r.problems.map((p)=>String(p).split(':')[0]).sort().join(',');\nconst bad=Object.assign({},B,{ip:'3d62::9037%1',plan:'nope'});\nprint('o='+f(oracle.parseSignup(bad))+' m='+f(main.parseSignup(bad)));",
+          "expect": "o=ip,plan m=plan"
+        },
+        {
+          "claim": "Cause (b): with an unsafe-integer age plus a bad plan, the merged build adds age to the reported fields.",
+          "probe": "const B={id:'123e4567-e89b-12d3-a456-426614174000',email:'a@b.com',name:'x',ip:'1.2.3.4',plan:'free',flags:{}};\nconst f=(r)=>r.ok?'ACCEPT':r.problems.map((p)=>String(p).split(':')[0]).sort().join(',');\nconst bad=Object.assign({},B,{age:1e21,plan:'nope'});\nprint('o='+f(oracle.parseSignup(bad))+' m='+f(main.parseSignup(bad)));",
+          "expect": "o=plan m=age,plan"
+        },
+        {
+          "claim": "Both versions still reject these inputs, so no verdict changes and no value is stored.",
+          "probe": "const B={id:'123e4567-e89b-12d3-a456-426614174000',email:'a@b.com',name:'x',ip:'1.2.3.4',plan:'free',flags:{}};\nconst b1=Object.assign({},B,{ip:'3d62::9037%1',plan:'nope'});\nconst b2=Object.assign({},B,{age:1e21,plan:'nope'});\nprint('both1='+(!oracle.parseSignup(b1).ok&&!main.parseSignup(b1).ok)+' both2='+(!oracle.parseSignup(b2).ok&&!main.parseSignup(b2).ok));",
+          "expect": "both1=true both2=true"
+        }
+      ]
+    },
+    {
+      "heading": "config: rejected by both, but different fields reported",
+      "answers": {
+        "verdict_changes": false,
+        "direction": "none",
+        "stored_value_changes": false,
+        "already_signed_off": false,
+        "real_clients": "unknown",
+        "why": "The config analogue of the signup field-list group: both versions reject every input here (probe: both=true), so no verdict flips and nothing is stored; only the error field list differs. Reproduced both causes: with {port:123, hosts:['2459::52d2%lo0'], timeoutMs:Infinity} zod 3 reports 'hosts.0,port' and the merged build reports 'port,timeoutMs' - the zoned host stops being an error (the zone widening) and Infinity becomes one (the finiteness tightening); with {hosts:['nope'], timeoutMs:Infinity} the list grows from 'hosts.0' to 'hosts.0,timeoutMs'. Neither cause is covered by review/corpus-diffs.md (the zone widening contradicts its explicit claim, and non-finite numbers are not mentioned at all), so already_signed_off=false. real_clients 'unknown' is a judgement: the examples combine several nonsense values, but an operator can plausibly have more than one bad config field at once. Judgement on impact: on its own this is a diagnostics-detail change and needs no separate action; the action items are in the hosts/ip and timeoutMs groups."
+      },
+      "claims": [
+        {
+          "claim": "Field lists differ for an input both versions reject: zod 3 says hosts.0+port, the merged build says port+timeoutMs.",
+          "probe": "const f=(r)=>r.ok?'ACCEPT':r.problems.map((p)=>String(p).split(':')[0]).sort().join(',');\nconst c={port:123,hosts:['2459::52d2%lo0'],timeoutMs:Infinity};\nprint('o='+f(oracle.parseConfig(c))+' m='+f(main.parseConfig(c)));",
+          "expect": "o=hosts.0,port m=port,timeoutMs"
+        },
+        {
+          "claim": "Both versions reject that input, so the verdict is unchanged.",
+          "probe": "const c={port:123,hosts:['2459::52d2%lo0'],timeoutMs:Infinity};\nprint('both='+(!oracle.parseConfig(c).ok&&!main.parseConfig(c).ok));",
+          "expect": "both=true"
+        },
+        {
+          "claim": "The growing field lists in the examples come from timeoutMs=Infinity being newly reported alongside an unchanged bad host.",
+          "probe": "const f=(r)=>r.ok?'ACCEPT':r.problems.map((p)=>String(p).split(':')[0]).sort().join(',');\nconst c={hosts:['nope'],timeoutMs:Infinity};\nprint('o='+f(oracle.parseConfig(c))+' m='+f(main.parseConfig(c)));",
+          "expect": "o=hosts.0 m=hosts.0,timeoutMs"
+        }
+      ]
+    },
+    {
+      "heading": "signup: website accepted, but the PARSED VALUE changed",
+      "answers": {
+        "verdict_changes": false,
+        "direction": "none",
+        "stored_value_changes": true,
+        "already_signed_off": false,
+        "real_clients": "yes",
+        "why": "Both versions accept these inputs, so no verdict changes; only the stored string differs. Reproduced: website=' https://example.com' is stored verbatim by zod 3 and as 'https://example.com' by the merged build (same=false, o_verbatim=true, m_trimmed=true), and a trailing newline is likewise stripped. Only surrounding whitespace is removed - scheme/host case and path are preserved ('HTTPS://Example.COM/A?b=1 ' -> 'HTTPS://Example.COM/A?b=1'), so this is zod 4's z.url() trimming its input rather than full URL normalization. review/corpus-diffs.md lists z.string().url() -> z.url() under 'Silent API moves (no corpus difference)' and asserts the move is a pure API rename with identical answers on all 400 requests; the output change is not mentioned, and the corpus evidently contained no whitespace-padded URL (corpus/canon.js does key on the parsed value, so it would have surfaced if one had). So this is an unreviewed behavioural change. real_clients 'yes' is a judgement: a URL pasted into a form with a leading space or trailing newline is ordinary, well-behaved client input - and the fuzzer hit it 8 times. Judgement on impact: the trimmed value is arguably the better one to store, but it is a silent change to persisted data for existing callers, so a human should confirm it (and anything downstream that compares, dedupes or signs the exact string) rather than inherit it from a dependency bump."
+      },
+      "claims": [
+        {
+          "claim": "' https://example.com' is accepted by both, but zod 3 stores it verbatim while the merged build stores the trimmed URL.",
+          "probe": "const B={id:'123e4567-e89b-12d3-a456-426614174000',email:'a@b.com',name:'x',ip:'1.2.3.4',plan:'free',flags:{}};\nconst w=' https://example.com';\nconst o=oracle.parseSignup(Object.assign({},B,{website:w})), m=main.parseSignup(Object.assign({},B,{website:w}));\nprint('o_ok='+o.ok+' m_ok='+m.ok+' same='+(o.value.website===m.value.website)+' o_verbatim='+(o.value.website===w)+' m_trimmed='+(m.value.website===w.trim()));",
+          "expect": "o_ok=true m_ok=true same=false o_verbatim=true m_trimmed=true"
+        },
+        {
+          "claim": "A trailing newline is kept by zod 3 and stripped by the merged build, with both still accepting.",
+          "probe": "const B={id:'123e4567-e89b-12d3-a456-426614174000',email:'a@b.com',name:'x',ip:'1.2.3.4',plan:'free',flags:{}};\nconst NL=String.fromCharCode(10);\nconst w='https://example.com'+NL;\nconst o=oracle.parseSignup(Object.assign({},B,{website:w})), m=main.parseSignup(Object.assign({},B,{website:w}));\nprint('nl_o_ok='+o.ok+' nl_m_ok='+m.ok+' nl_o_has_newline='+(o.value.website.indexOf(NL)>=0)+' nl_m_has_newline='+(m.value.website.indexOf(NL)>=0));",
+          "expect": "nl_o_ok=true nl_m_ok=true nl_o_has_newline=true nl_m_has_newline=false"
+        },
+        {
+          "claim": "The merged build only trims whitespace - scheme/host case and path are left alone, so this is trimming rather than URL normalization.",
+          "probe": "const B={id:'123e4567-e89b-12d3-a456-426614174000',email:'a@b.com',name:'x',ip:'1.2.3.4',plan:'free',flags:{}};\nconst w='HTTPS://Example.COM/A?b=1 ';\nconst m=main.parseSignup(Object.assign({},B,{website:w}));\nprint('m_ok='+m.ok+' stored_is_trim_only='+(m.value.website===w.trim()));",
+          "expect": "m_ok=true stored_is_trim_only=true"
+        }
+      ]
+    }
+  ]
+}
